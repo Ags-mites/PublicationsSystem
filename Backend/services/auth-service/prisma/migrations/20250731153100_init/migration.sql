@@ -7,7 +7,7 @@ CREATE TABLE "public"."users" (
     "first_name" STRING(100) NOT NULL,
     "last_name" STRING(100) NOT NULL,
     "email" STRING(255) NOT NULL,
-    "password_hash" STRING(255) NOT NULL,
+    "password" STRING(255) NOT NULL,
     "roles" "public"."UserRole"[],
     "affiliation" STRING(500),
     "orcid" STRING(19),

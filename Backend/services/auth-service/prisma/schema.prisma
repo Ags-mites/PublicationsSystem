@@ -20,7 +20,7 @@ model User {
   firstName        String    @map("first_name") @db.String(100)
   lastName         String    @map("last_name") @db.String(100)
   email            String    @unique @db.String(255)
-  passwordHash     String    @map("password_hash") @db.String(255)
+  password         String    @map("password") @db.String(255)
   roles            UserRole[]
   affiliation      String?   @db.String(500)
   orcid            String?   @db.String(19)

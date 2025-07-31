@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/services/prisma.service';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import { UserCreateInput, UserUpdateInput, UserEntity, RefreshTokenEntity, UserRole } from '../types/user.types';
 import { User, RefreshToken } from '@prisma/client';
@@ -23,6 +23,7 @@ export class UsersService {
   }
 
   async create(userData: UserCreateInput): Promise<UserEntity> {
+    console.log(userData)
     try {
       const user = await this.prisma.user.create({
         data: userData,

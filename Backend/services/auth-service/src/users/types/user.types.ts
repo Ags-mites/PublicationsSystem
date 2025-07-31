@@ -12,12 +12,14 @@ export interface UserCreateInput {
   firstName: string;
   lastName: string;
   email: string;
-  passwordHash: string;
+  password: string;
   roles: UserRole[];
   affiliation?: string | null;
   orcid?: string | null;
   biography?: string | null;
   profileImageUrl?: string | null;
+  isActive?: boolean;
+  emailVerified?: boolean;
 }
 
 export interface UserUpdateInput {
@@ -36,7 +38,7 @@ export class UserEntity {
   email: string;
   
   @Exclude()
-  passwordHash: string;
+  password: string;
   
   roles: UserRole[];
   affiliation: string | null;

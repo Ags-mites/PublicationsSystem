@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 
 import { UsersService } from '../../users/services/users.service';
@@ -52,7 +52,7 @@ export class AuthService {
 
     // Hash password
     const saltRounds = this.configService.get<number>('BCRYPT_ROUNDS', 12);
-    const passwordHash = await bcrypt.hash(registerDto.password, saltRounds);
+    const password = await bcrypt.hash(registerDto.password, saltRounds);
 
     // Set default role if none provided
     const roles = registerDto.roles?.length
@@ -61,7 +61,7 @@ export class AuthService {
 
     const userData = {
       ...registerDto,
-      passwordHash,
+      password,
       roles,
     };
 
@@ -184,7 +184,7 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<UserEntity | null> {
     const user = await this.usersService.findByEmail(email);
-    if (user && await bcrypt.compare(password, user.passwordHash)) {
+    if (user && await bcrypt.compare(password, user.password)) {
       return user;
     }
     return null;
@@ -279,7 +279,7 @@ export class AuthService {
   }
 
   private sanitizeUser(user: UserEntity): Partial<UserEntity> {
-    const { passwordHash, ...sanitized } = user;
+    const { password, ...sanitized } = user;
     return sanitized;
   }
 }
