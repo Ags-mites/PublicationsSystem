@@ -1,0 +1,49 @@
+
+
+services:
+  # RabbitMQ Message Broker
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"     # AMQP port
+      - "15672:15672"   # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - microservices-network
+
+  # CockroachDB Database
+  cockroachdb:
+    image: cockroachdb/cockroach:latest
+    container_name: cockroachdb
+    command: start-single-node --insecure
+    ports:
+      - "26257:26257"   # SQL port
+      - "8080:8080"     # Admin UI
+    volumes:
+      - cockroachdb_data:/cockroach/cockroach-data
+    networks:
+      - microservices-network
+
+  # Consul Service Discovery
+  consul:
+    image: hashicorp/consul:latest
+    container_name: consul
+    ports:
+      - "8500:8500"     # HTTP API
+      - "8600:8600/udp" # DNS
+    command: agent -server -ui -node=server-1 -bootstrap-expect=1 -client=0.0.0.0
+    networks:
+      - microservices-network
+
+volumes:
+  rabbitmq_data:
+  cockroachdb_data:
+
+networks:
+  microservices-network:
+    driver: bridge 

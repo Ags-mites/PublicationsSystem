@@ -1,0 +1,104 @@
+# ⚙️ Node Modules
+node_modules/
+
+# ⚒️ Build outputs
+dist/
+build/
+.out/
+.next/
+coverage/
+tmp/
+temp/
+.cache/
+.nyc_output/
+
+# � Test & coverage
+jest.*
+*.tsbuildinfo
+*.test.ts
+*.spec.ts
+*.spec.js
+
+# � Environment files
+.env
+.env.*
+!.env.example
+
+# � IDEs & Editors
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.code-workspace
+
+# � Logs & Reports
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+report.*.json
+
+# � OS and Misc
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
+*.tmp
+*.orig
+
+# � Package managers
+.pnpm-debug.log
+.yarn-integrity
+node_modules/
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# � Lerna
+lerna-debug.log
+lerna.json
+
+# � Turbo / Nx / Monorepo tools
+.turbo/
+nx-cache/
+turbo.json
+node_modules/.cache/
+
+# �️ Frontend (React, Vite, Next.js, etc.)
+*.local
+*.lock
+*.map
+*.webp
+*.jpg
+*.jpeg
+*.png
+*.svg
+
+# � NestJS-specific
+*.js
+*.js.map
+*.d.ts
+*.d.ts.map
+
+# � Git / Merge / Rebase
+*.orig
+*.rej
+
+# � Docker & CI
+.docker/
+docker-compose.override.yml
+docker-compose.*.yml
+.env.docker
+.env.kubernetes
+*.pid
+*.seed
+
+# � Docs / Markdown temp files
+*.md~
+*.markdown~
+
+# � Clean root-only examples (optional)
+!/README.md
+!/docs/

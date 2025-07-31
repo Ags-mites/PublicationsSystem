@@ -1,0 +1,7 @@
+packages:
+  - services/*
+  - consul-service
+
+ignoredBuiltDependencies:
+  - '@nestjs/core'
+  - bcrypt
