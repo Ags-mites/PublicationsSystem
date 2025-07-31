@@ -31,7 +31,7 @@ async function bootstrap() {
       tags: ['catalog', 'public'],
       check: {
         name: 'catalog-service-check',
-        http: `http://localhost:${port}/health`,
+        http: `http://localhost:${port}/catalog/health`,
         interval: '10s',
         timeout: '5s'
       }

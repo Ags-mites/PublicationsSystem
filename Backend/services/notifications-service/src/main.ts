@@ -31,7 +31,7 @@ async function bootstrap() {
       tags: ['notifications', 'messaging'],
       check: {
         name: 'notifications-service-check',
-        http: `http://localhost:${port}/health`,
+        http: `http://localhost:${port}/notifications/health`,
         interval: '10s',
         timeout: '5s'
       }

@@ -31,7 +31,7 @@ async function bootstrap() {
       tags: ['publications', 'content'],
       check: {
         name: 'publications-service-check',
-        http: `http://localhost:${port}/health`,
+        http: `http://localhost:${port}/publications/health`,
         interval: '10s',
         timeout: '5s'
       }

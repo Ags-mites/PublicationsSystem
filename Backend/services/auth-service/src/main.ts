@@ -1,7 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-const consul = require('consul')();
+import Consul = require('consul');
+
+const consul = new Consul();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -31,8 +33,10 @@ async function bootstrap() {
       port: parseInt(port.toString()),
       tags: ['auth', 'security'],
       check: {
-        http: `http://localhost:${port}/health`,
-        interval: '10s'
+        name: 'auth-service-check',
+        http: `http://localhost:${port}/auth/health`,
+        interval: '10s',
+        timeout: '5s'
       }
     });
     console.log('Auth service registered with Consul');
