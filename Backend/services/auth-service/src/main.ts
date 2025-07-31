@@ -1,51 +1,61 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
+import * as compression from 'compression';
 import { AppModule } from './app.module';
-import Consul = require('consul');
+import { registerWithConsul } from './consul/consul.service';
+import { HttpExceptionFilter } from './filters/http-exception.filter';
+import { LoggingInterceptor } from './interceptors/logging.interceptor';
 
-const consul = new Consul();
+async function setupSwagger(app: any) {
+  const config = new DocumentBuilder()
+    .setTitle('Auth Service API')
+    .setDescription('Authentication microservice')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build(); 
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
-  // Enable CORS
-  app.enableCors();
-  
-  // Swagger documentation
-  const config = new DocumentBuilder()
-    .setTitle('Auth Service API')
-    .setDescription('Authentication and authorization service')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  const configService = app.get(ConfigService);
 
-  const port = process.env.PORT || 3001;
-  await app.listen(port);
-  
-  // Register with Consul
-  try {
-    await consul.agent.service.register({
-      name: 'auth-service',
-      id: 'auth-service-1',
-      address: 'localhost',
-      port: parseInt(port.toString()),
-      tags: ['auth', 'security'],
-      check: {
-        name: 'auth-service-check',
-        http: `http://localhost:${port}/auth/health`,
-        interval: '10s',
-        timeout: '5s'
-      }
-    });
-    console.log('Auth service registered with Consul');
-  } catch (error) {
-    console.error('Consul registration failed:', error);
+  const port = configService.get<number>('PORT', 3001);
+  const apiPrefix = configService.get<string>('API_PREFIX', 'api/v1');
+
+  app.use(helmet());
+  app.use(compression());
+  app.setGlobalPrefix(apiPrefix);
+  app.useGlobalPipes(new ValidationPipe({
+    transform: true,
+    whitelist: true,
+    forbidNonWhitelisted: true
+  }));
+
+  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalInterceptors(new LoggingInterceptor());
+
+  if (process.env.NODE_ENV === 'development') {
+   setupSwagger(app);
   }
 
-  console.log(`Auth Service running on port ${port}`);
-  console.log(`Swagger docs available at: http://localhost:${port}/api/docs`);
+  await app.listen(port);
+
+  // await registerWithConsul(configService, port, apiPrefix); 
+  console.log(`� Swagger docs: http://localhost:${port}/docs`);
+
+  process.on('SIGTERM', async () => {
+    await app.close();
+    process.exit(0);
+  });
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  console.error('Failed to start auth service:', error);
+  process.exit(1);
+});
