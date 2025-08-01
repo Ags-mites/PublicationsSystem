@@ -1,48 +1,124 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import Consul = require('consul');
+import { ConfigService } from '@nestjs/config';
+import helmet from 'helmet';
+import * as compression from 'compression';
+import { ValidationPipe, Logger } from '@nestjs/common';
+import { registerWithConsul, deregisterFromConsul } from './consul/consul.service';
 
-const consul = new Consul();
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { BusinessExceptionFilter } from './common/filters/business-exception.filter';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { TimeoutInterceptor } from './common/interceptors/timeout.interceptor';
+import { CorrelationIdMiddleware } from './common/middleware/correlation-id.middleware';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  
-  app.enableCors();
-  
+const logger = new Logger('Bootstrap');
+
+async function setupSwagger(app: any) {
   const config = new DocumentBuilder()
     .setTitle('Publications Service API')
-    .setDescription('Publications management service')
+    .setDescription('Academic Publications Management Microservice')
     .setVersion('1.0')
+    .addBearerAuth()
+    .addTag('publications', 'Publications management endpoints')
+    .addTag('reviews', 'Review system endpoints')
+    .addTag('authors', 'Authors management endpoints')
+    .addTag('metrics', 'Service metrics endpoints')
+    .addTag('health', 'Health check endpoints')
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('docs', app, document);
+}
 
-  const port = process.env.PORT || 3002;
-  await app.listen(port);
-  
-  // Register with Consul
+async function bootstrap() {
   try {
-    await consul.agent.service.register({
-      name: 'publications-service',
-      id: 'publications-service-1',
-      address: 'localhost',
-      port: parseInt(port.toString()),
-      tags: ['publications', 'content'],
-      check: {
-        name: 'publications-service-check',
-        http: `http://localhost:${port}/publications/health`,
-        interval: '10s',
-        timeout: '5s'
-      }
+    const app = await NestFactory.create(AppModule, {
+      logger: ['error', 'warn', 'log', 'debug'],
     });
-    console.log('Publications service registered with Consul');
-  } catch (error) {
-    console.error('Consul registration failed:', error);
-  }
 
-  console.log(`Publications Service running on port ${port}`);
-  console.log(`Swagger docs available at: http://localhost:${port}/api/docs`);
+    const configService = app.get(ConfigService);
+    const apiPrefix = configService.get<string>('API_PREFIX', 'api/v1');
+    const port = configService.get<number>('PORT', 3002);
+
+    // Configuración de seguridad y middleware
+    app.use(helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          scriptSrc: ["'self'"],
+          imgSrc: ["'self'", "data:", "https:"],
+        },
+      },
+    }));
+    app.use(compression());
+
+    app.enableCors({
+      origin: configService.get<string>('CORS_ORIGINS', 'http://localhost:3000').split(','),
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Correlation-ID'],
+      credentials: true,
+    })
+
+    app.setGlobalPrefix(apiPrefix);
+    app.use(new CorrelationIdMiddleware().use);
+    app.useGlobalPipes(
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        validateCustomDecorators: true,
+        disableErrorMessages: false,
+        stopAtFirstError: false,
+      }),
+    );
+
+    // Global filters
+    app.useGlobalFilters(
+      new HttpExceptionFilter(),
+      new BusinessExceptionFilter(),
+    );
+
+    // Global interceptors
+    app.useGlobalInterceptors(
+      new LoggingInterceptor(),
+      new TimeoutInterceptor(),
+      new TransformInterceptor(),
+    );
+
+    // Configuración de Swagger en desarrollo
+    if (process.env.NODE_ENV === 'development') {
+      await setupSwagger(app);
+    }
+
+    // Iniciar el servidor
+    await app.listen(port);
+    logger.log(`Publications Service is running on port ${port}`);
+
+    // Registrar con Consul
+    await registerWithConsul(configService, port, apiPrefix);
+    console.log('✅ Service registered with Consul');
+
+    // Manejo de señales de terminación
+    process.on('SIGTERM', async () => {
+      console.log('� SIGTERM received, shutting down gracefully');
+      await app.close();
+      process.exit(0);
+    });
+
+    process.on('SIGINT', async () => {
+      console.log('� SIGINT received, shutting down gracefully');
+      await app.close();
+      process.exit(0);
+    });
+
+  } catch (error) {
+    logger.error('Failed to start Publications Service:', error.message);
+    process.exit(1);
+  }
 }
 
 bootstrap();
