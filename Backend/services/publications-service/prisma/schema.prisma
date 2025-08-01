@@ -19,35 +19,41 @@ model Publication {
   primaryAuthorId String
   coAuthorIds     String[]
   type            PublicationType
-  metadata        Json
+  metadata        Json             @default("{}")
   submittedAt     DateTime?
   publishedAt     DateTime?
+  
+  // Relations
   article         Article?
   book            Book?
   reviews         Review[]
+  author          Author           @relation("PrimaryAuthor", fields: [primaryAuthorId], references: [id])
+  coAuthors       Author[]         @relation("CoAuthors")
 
   @@map("publications")
 }
 
 model Article {
-  id                     String   @id @default(uuid())
-  publicationId          String   @unique
+  id                     String      @id @default(uuid())
+  publicationId          String      @unique
   targetJournal          String
   section                String
   bibliographicReferences String[]
-  figureCount            Int
-  tableCount             Int
+  figureCount            Int         @default(0)
+  tableCount             Int         @default(0)
+  
   publication            Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
 
   @@map("articles")
 }
 
 model Book {
-  id            String   @id @default(uuid())
-  publicationId String   @unique
-  isbn          String   @unique
+  id            String      @id @default(uuid())
+  publicationId String      @unique
+  isbn          String      @unique
   pageCount     Int
   edition       String
+  
   publication   Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
   chapters      Chapter[]
 
@@ -55,17 +61,39 @@ model Book {
 }
 
 model Chapter {
-  id           String   @id @default(uuid())
+  id           String @id @default(uuid())
   bookId       String
   chapterNumber Int
   title        String
   abstract     String
   pageStart    Int
   pageEnd      Int
-  book         Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  
+  book         Book   @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
   @@unique([bookId, chapterNumber])
   @@map("chapters")
+}
+
+model Author {
+  id                String        @id @default(uuid())
+  firstName         String
+  lastName          String
+  email             String        @unique
+  affiliation       String
+  orcid             String?       @unique
+  biography         String?
+  photoUrl          String?
+  isActive          Boolean       @default(true)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  
+  // Relations
+  primaryPublications Publication[] @relation("PrimaryAuthor")
+  coAuthoredPublications Publication[] @relation("CoAuthors")
+  reviews           Review[]
+
+  @@map("authors")
 }
 
 model Review {
@@ -74,23 +102,26 @@ model Review {
   reviewerId     String
   reviewStatus   ReviewStatus
   comments       String
-  changeRequests ChangeRequest[]
   score          Int?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+  
   publication    Publication   @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+  reviewer       Author        @relation(fields: [reviewerId], references: [id])
+  changeRequests ChangeRequest[]
 
   @@map("reviews")
 }
 
 model ChangeRequest {
-  id          String   @id @default(uuid())
+  id          String         @id @default(uuid())
   reviewId    String
   section     String
   severity    ChangeSeverity
   description String
   suggestion  String?
-  review      Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  
+  review      Review         @relation(fields: [reviewId], references: [id], onDelete: Cascade)
 
   @@map("change_requests")
 }

@@ -100,17 +100,17 @@ async function bootstrap() {
 
     // Registrar con Consul
     await registerWithConsul(configService, port, apiPrefix);
-    console.log('✅ Service registered with Consul');
+    console.log('Service registered with Consul');
 
     // Manejo de señales de terminación
     process.on('SIGTERM', async () => {
-      console.log('� SIGTERM received, shutting down gracefully');
+      console.log('SIGTERM received, shutting down gracefully');
       await app.close();
       process.exit(0);
     });
 
     process.on('SIGINT', async () => {
-      console.log('� SIGINT received, shutting down gracefully');
+      console.log('SIGINT received, shutting down gracefully');
       await app.close();
       process.exit(0);
     });

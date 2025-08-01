@@ -54,9 +54,9 @@ export async function registerWithConsul(
       },
     });
 
-    console.log(`✅ Service registered with Consul as ${serviceId}`);
+    console.log(`Service registered with Consul as ${serviceId}`);
   } catch (error) {
-    console.warn('⚠️ Consul registration failed:', error.message);
+    console.warn('Consul registration failed:', error.message);
   }
 }
 
@@ -67,8 +67,8 @@ export async function deregisterFromConsul(configService: ConfigService): Promis
 
   try {
     await consul.agent.service.deregister(registeredServiceId);
-    console.log(`✅ Service deregistered from Consul: ${registeredServiceId}`);
+    console.log(`Service deregistered from Consul: ${registeredServiceId}`);
   } catch (error) {
-    console.warn('⚠️ Consul deregistration failed:', error.message);
+    console.warn('Consul deregistration failed:', error.message);
   }
 }
