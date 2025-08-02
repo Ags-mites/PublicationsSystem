@@ -1,10 +1,67 @@
 import { Module } from '@nestjs/common';
-import { CatalogController } from './catalog.controller';
-import { CatalogService } from './catalog.service';
+import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { CacheModule } from '@nestjs/cache-manager';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+
+import { PrismaModule } from './prisma/prisma.module';
+import { EventsModule } from './events/events.module';
+
+import { CatalogController } from './controllers/catalog.controller';
+import { AuthorsController } from './controllers/authors.controller';
+import { HealthController } from './controllers/health.controller';
+
+import { CatalogService } from './services/catalog.service';
+import { CatalogSearchService } from './services/catalog-search.service';
+import { CatalogAuthorService } from './services/catalog-author.service';
+import { MetricsService } from './services/metrics.service';
+import { ConsulService } from './consul/consul.service';
+
+import appConfig from './config/app.config';
+import databaseConfig from './config/database.config';
+import rabbitmqConfig from './config/rabbitmq.config';
 
 @Module({
-  imports: [],
-  controllers: [CatalogController],
-  providers: [CatalogService],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [appConfig, databaseConfig, rabbitmqConfig],
+      envFilePath: ['.env.local', '.env'],
+    }),
+    ThrottlerModule.forRoot({
+      ttl: 60000,
+      limit: 100,
+    }),
+    CacheModule.register({
+      isGlobal: true,
+      ttl: 300000, // 5 minutes default
+      max: 100,
+    }),
+    ClientsModule.register([
+      {
+        name: 'CATALOG_SERVICE',
+        transport: Transport.RMQ,
+        options: {
+          urls: [process.env.RABBITMQ_URL || 'amqp://localhost:5672'],
+          queue: 'catalog_queue',
+          queueOptions: {
+            durable: true,
+          },
+        },
+      },
+    ]),
+    PrismaModule,
+    EventsModule,
+  ],
+  controllers: [
+    CatalogController,
+    AuthorsController,
+    HealthController,
+  ],
+  providers: [
+    CatalogSearchService,
+    MetricsService,
+    ConsulService,
+  ],
 })
 export class AppModule {}

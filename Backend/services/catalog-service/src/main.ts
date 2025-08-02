@@ -1,48 +1,108 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import helmet from 'helmet';
+import * as compression from 'compression';
 import { AppModule } from './app.module';
-import Consul = require('consul');
+import { registerWithConsul } from './consul/consul.service';
+import { HttpExceptionFilter } from './filters/http-exception.filter';
+import { LoggingInterceptor } from './interceptors/logging.interceptor';
 
-const consul = new Consul();
+async function setupSwagger(app: any) {
+  const config = new DocumentBuilder()
+    .setTitle('Catalog Service API')
+    .setDescription('Public catalog microservice for academic publications')
+    .setVersion('1.0')
+    .addTag('Catalog', 'Publications catalog endpoints')
+    .addTag('Authors', 'Authors management endpoints')
+    .addTag('Health', 'Service health and metrics endpoints')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
-  app.enableCors();
-  
-  const config = new DocumentBuilder()
-    .setTitle('Catalog Service API')
-    .setDescription('Publications catalog service')
-    .setVersion('1.0')
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  const configService = app.get(ConfigService);
 
-  const port = process.env.PORT || 3003;
+  const port = configService.get<number>('PORT', 3003);
+  const apiPrefix = configService.get<string>('API_PREFIX', 'api/v1');
+
+  // Security middleware
+  app.use(helmet());
+  app.use(compression());
+  
+  // CORS configuration
+  app.enableCors({
+    origin: true,
+    methods: ['GET', 'HEAD', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+    credentials: false,
+  });
+
+  // Global configuration
+  app.setGlobalPrefix(apiPrefix);
+  app.useGlobalPipes(new ValidationPipe({
+    transform: true,
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    disableErrorMessages: false,
+  }));
+
+  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalInterceptors(new LoggingInterceptor());
+
+  // RabbitMQ microservice setup - DISABLED temporarily
+  /*
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      urls: [configService.get<string>('RABBITMQ_URL', 'amqp://localhost:5672')],
+      queue: 'catalog_queue',
+      queueOptions: {
+        durable: true,
+      },
+    },
+  });
+  */
+
+  // Setup Swagger in development
+  if (process.env.NODE_ENV === 'development') {
+    await setupSwagger(app);
+  }
+
+  // Start microservice - DISABLED temporarily
+  // await app.startAllMicroservices();
+  
+  // Start HTTP server
   await app.listen(port);
   
   // Register with Consul
-  try {
-    await consul.agent.service.register({
-      name: 'catalog-service',
-      id: 'catalog-service-1',
-      address: 'localhost',
-      port: parseInt(port.toString()),
-      tags: ['catalog', 'public'],
-      check: {
-        name: 'catalog-service-check',
-        http: `http://localhost:${port}/catalog/health`,
-        interval: '10s',
-        timeout: '5s'
-      }
-    });
-    console.log('Catalog service registered with Consul');
-  } catch (error) {
-    console.error('Consul registration failed:', error);
-  }
+  await registerWithConsul(configService, port, apiPrefix);
+  
+  console.log(`🚀 Catalog Service running on port ${port}`);
+  console.log(`📚 API: http://localhost:${port}/${apiPrefix}`);
+  console.log(`📚 Swagger docs: http://localhost:${port}/docs`);
+  console.log(`🔍 Health: http://localhost:${port}/${apiPrefix}/health`);
 
-  console.log(`Catalog Service running on port ${port}`);
-  console.log(`Swagger docs available at: http://localhost:${port}/api/docs`);
+  // Graceful shutdown
+  process.on('SIGTERM', async () => {
+    console.log('Received SIGTERM, shutting down gracefully...');
+    await app.close();
+    process.exit(0);
+  });
+
+  process.on('SIGINT', async () => {
+    console.log('Received SIGINT, shutting down gracefully...');
+    await app.close();
+    process.exit(0);
+  });
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  console.error('Failed to start catalog service:', error);
+  process.exit(1);
+});

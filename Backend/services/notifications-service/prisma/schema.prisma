@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "cockroachdb"
+  url      = env("DATABASE_URL")
+}
+
+enum NotificationType {
+  USER_LOGIN
+  USER_REGISTERED
+  PUBLICATION_SUBMITTED
+  PUBLICATION_APPROVED
+  PUBLICATION_PUBLISHED
+  REVIEW_REQUESTED
+  REVIEW_COMPLETED
+  CHANGES_REQUESTED
+}
+
+enum NotificationChannel {
+  EMAIL
+  WEBSOCKET
+  PUSH
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  READ
+}
+
+model Notification {
+  id         String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String             @map("user_id") @db.Uuid
+  type       NotificationType
+  title      String
+  message    String
+  channel    NotificationChannel
+  status     NotificationStatus @default(PENDING)
+  metadata   Json               @default("{}")
+  createdAt  DateTime           @default(now()) @map("created_at")
+  sentAt     DateTime?          @map("sent_at")
+  readAt     DateTime?          @map("read_at")
+  retryCount Int                @default(0) @map("retry_count")
+  maxRetries Int                @default(3) @map("max_retries")
+  
+  // Relations
+  queueItems NotificationQueue[]
+  deliveryLogs DeliveryLog[]
+  
+  @@map("notifications")
+  @@index([userId])
+  @@index([status])
+  @@index([type])
+  @@index([channel])
+  @@index([createdAt])
+  @@index([userId, status])
+  @@index([userId, createdAt])
+}
+
+model NotificationSubscription {
+  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String              @map("user_id") @db.Uuid
+  eventType         String              @map("event_type")
+  channelPreference NotificationChannel @map("channel_preference")
+  isActive          Boolean             @default(true) @map("is_active")
+  createdAt         DateTime            @default(now()) @map("created_at")
+  updatedAt         DateTime            @updatedAt @map("updated_at")
+  
+  @@unique([userId, eventType])
+  @@map("notification_subscriptions")
+  @@index([userId])
+  @@index([eventType])
+  @@index([isActive])
+}
+
+model NotificationTemplate {
+  id           String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  eventType    String              @map("event_type")
+  channel      NotificationChannel
+  subject      String
+  bodyTemplate String              @map("body_template")
+  isActive     Boolean             @default(true) @map("is_active")
+  createdAt    DateTime            @default(now()) @map("created_at")
+  updatedAt    DateTime            @updatedAt @map("updated_at")
+  
+  @@unique([eventType, channel])
+  @@map("notification_templates")
+  @@index([eventType])
+  @@index([channel])
+  @@index([isActive])
+}
+
+model NotificationPreference {
+  id                   String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId               String  @unique @map("user_id") @db.Uuid
+  emailEnabled         Boolean @default(true) @map("email_enabled")
+  websocketEnabled     Boolean @default(true) @map("websocket_enabled")
+  pushEnabled          Boolean @default(false) @map("push_enabled")
+  emailDigestEnabled   Boolean @default(false) @map("email_digest_enabled")
+  digestFrequency      String  @default("daily") @map("digest_frequency") // daily, weekly
+  quietHoursStart      String? @map("quiet_hours_start") // HH:mm format
+  quietHoursEnd        String? @map("quiet_hours_end") // HH:mm format
+  timezone             String  @default("UTC")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+  
+  @@map("notification_preferences")
+}
+
+model NotificationQueue {
+  id             String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  notificationId String              @map("notification_id") @db.Uuid
+  channel        NotificationChannel
+  priority       Int                 @default(1) // 1=low, 2=normal, 3=high
+  scheduledFor   DateTime            @default(now()) @map("scheduled_for")
+  processedAt    DateTime?           @map("processed_at")
+  failedAt       DateTime?           @map("failed_at")
+  errorMessage   String?             @map("error_message")
+  retryCount     Int                 @default(0) @map("retry_count")
+  
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  
+  @@map("notification_queue")
+  @@index([scheduledFor])
+  @@index([processedAt])
+  @@index([priority, scheduledFor])
+  @@index([channel])
+}
+
+model DeliveryLog {
+  id             String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  notificationId String              @map("notification_id") @db.Uuid
+  channel        NotificationChannel
+  status         String              // sent, failed, delivered, bounced
+  response       Json?               // delivery service response
+  attemptedAt    DateTime            @default(now()) @map("attempted_at")
+  deliveredAt    DateTime?           @map("delivered_at")
+  errorCode      String?             @map("error_code")
+  errorMessage   String?             @map("error_message")
+  
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  
+  @@map("delivery_logs")
+  @@index([notificationId])
+  @@index([channel])
+  @@index([status])
+  @@index([attemptedAt])
+}

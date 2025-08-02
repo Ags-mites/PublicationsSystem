@@ -1,98 +1,216 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Notifications Service
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A comprehensive multi-channel notification system with real-time capabilities, reliable delivery, and user preference management for the Academic Publications System.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+- **Multi-Channel Delivery**: Email, WebSocket, and Push notification support
+- **Real-Time Notifications**: WebSocket gateway for instant delivery
+- **Event-Driven Architecture**: Consumes RabbitMQ events from other services
+- **Reliable Delivery**: Retry mechanisms, dead letter queues, and delivery tracking
+- **User Preferences**: Comprehensive notification preferences and subscriptions
+- **Template Engine**: Handlebars-based email templates with multi-format support
+- **Queue Management**: Bull-based job processing with Redis
+- **Performance Monitoring**: Comprehensive metrics and health checks
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Architecture
 
-## Project setup
+### Notification Channels
+- **Email**: SMTP-based with HTML/text templates
+- **WebSocket**: Real-time browser notifications via Socket.IO
+- **Push**: Mobile push notifications (placeholder for future implementation)
 
-```bash
-$ pnpm install
+### Event Processing Flow
+1. Consume events from RabbitMQ
+2. Determine target users and their preferences
+3. Generate notifications for enabled channels
+4. Queue delivery jobs with priority and retry logic
+5. Process delivery through appropriate channels
+6. Track delivery status and handle failures
+
+## API Endpoints
+
+### Notifications Management
+- `GET /api/v1/notifications` - Get user notifications (paginated)
+- `GET /api/v1/notifications/unread-count` - Get unread notification count
+- `PUT /api/v1/notifications/:id/mark-read` - Mark notification as read/unread
+- `PUT /api/v1/notifications/mark-all-read` - Mark all as read
+- `DELETE /api/v1/notifications/:id` - Delete notification
+- `DELETE /api/v1/notifications/clear-all` - Clear all read notifications
+- `GET /api/v1/notifications/stats` - Get notification statistics
+
+### User Preferences
+- `GET /api/v1/notifications/preferences` - Get user preferences
+- `PUT /api/v1/notifications/preferences` - Update preferences
+- `GET /api/v1/notifications/preferences/defaults` - Get default preferences
+
+### Event Subscriptions
+- `GET /api/v1/notifications/subscriptions` - Get user subscriptions
+- `POST /api/v1/notifications/subscriptions` - Create subscription
+- `PUT /api/v1/notifications/subscriptions/:id` - Update subscription
+- `DELETE /api/v1/notifications/subscriptions/:id` - Delete subscription
+- `GET /api/v1/notifications/subscriptions/event-types` - Get available event types
+- `POST /api/v1/notifications/subscriptions/bulk-create` - Create multiple subscriptions
+
+### Health & Monitoring
+- `GET /api/v1/health` - Service health check
+- `GET /api/v1/metrics` - Service metrics and statistics
+
+## WebSocket Events
+
+### Client → Server
+- `subscribe` - Subscribe to user notifications
+- `unsubscribe` - Unsubscribe from notifications
+- `ping` - Ping/pong heartbeat
+- `markAsRead` - Mark notification as read
+
+### Server → Client
+- `notification` - New notification delivery
+- `notificationRead` - Notification marked as read
+- `subscribed` - Subscription confirmation
+- `unsubscribed` - Unsubscription confirmation
+- `error` - Error messages
+
+## Event Consumption
+
+Listens for these RabbitMQ events:
+- `user.registered` - Welcome notifications for new users
+- `user.login` - Login alert notifications
+- `publication.submitted` - Submission confirmations
+- `publication.approved` - Approval notifications
+- `publication.published` - Publication announcements
+- `publication.review.requested` - Review request notifications
+- `publication.review.completed` - Review completion notifications
+
+## Configuration
+
+### Environment Variables
+```env
+# Application
+NODE_ENV=development
+PORT=3004
+API_PREFIX=api/v1
+FRONTEND_URL=http://localhost:3000
+
+# Database
+DATABASE_URL=postgresql://notifications:pass@localhost:5432/notifications_db
+
+# Email SMTP
+SMTP_HOST=localhost
+SMTP_PORT=587
+SMTP_USER=user
+SMTP_PASS=password
+EMAIL_FROM=noreply@academic-system.com
+
+# RabbitMQ
+RABBITMQ_URL=amqp://localhost:5672
+RABBITMQ_QUEUE=notifications_queue
+
+# Redis (Bull Queue)
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_DB=0
+
+# Consul
+CONSUL_URL=http://localhost:8500
 ```
 
-## Compile and run the project
+## Notification Templates
+
+Pre-built templates for all event types:
+- User registration welcome emails
+- Login alerts
+- Publication lifecycle notifications
+- Review process notifications
+- Custom template support with Handlebars
+
+## Reliability Features
+
+### Delivery Guarantees
+- **Email**: 3 retry attempts with exponential backoff
+- **WebSocket**: 1 retry with immediate fallback
+- **Push**: 2 retry attempts
+
+### Failure Handling
+- Dead letter queues for persistent failures
+- Delivery status tracking and logging
+- Automatic retry with configurable backoff
+- Failed notification reporting
+
+### User Experience
+- Quiet hours support (no notifications during specified times)
+- Digest emails for batched notifications
+- Real-time delivery status updates
+- Preference-based channel selection
+
+## Development
 
 ```bash
-# development
-$ pnpm run start
+# Install dependencies
+npm install
 
-# watch mode
-$ pnpm run start:dev
+# Setup environment
+cp .env.example .env
 
-# production mode
-$ pnpm run start:prod
+# Generate Prisma client
+npx prisma generate
+
+# Run database migrations
+npx prisma migrate dev
+
+# Start development server
+npm run start:dev
+
+# Start with debug logging
+npm run start:debug
 ```
 
-## Run tests
+## Production
 
 ```bash
-# unit tests
-$ pnpm run test
+# Build the application
+npm run build
 
-# e2e tests
-$ pnpm run test:e2e
+# Start production server
+npm run start
 
-# test coverage
-$ pnpm run test:cov
+# Health check
+curl http://localhost:3004/api/v1/health
 ```
 
-## Deployment
+## Dependencies
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### Core Services
+- **Database**: CockroachDB with Prisma ORM
+- **Message Queue**: RabbitMQ for event consumption
+- **Cache/Queue**: Redis for Bull job processing
+- **Email**: Nodemailer with SMTP transport
+- **WebSocket**: Socket.IO for real-time delivery
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### External Services
+- **Service Discovery**: Consul for registration
+- **Monitoring**: Built-in metrics and health checks
 
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
-```
+## Performance Considerations
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+- **Queue Processing**: Parallel job processing with priority queues
+- **Database Optimization**: Indexed queries for fast lookups
+- **Memory Management**: Efficient WebSocket connection handling
+- **Rate Limiting**: Throttled API endpoints to prevent abuse
+- **Template Caching**: Compiled template caching for performance
 
-## Resources
+## Monitoring & Observability
 
-Check out a few resources that may come in handy when working with NestJS:
+- Real-time connection counts and user statistics
+- Delivery success/failure rates and timing metrics
+- Queue depth and processing time monitoring
+- Email delivery tracking and bounce handling
+- Comprehensive logging with correlation IDs
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Security Features
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- Input validation and sanitization
+- CORS configuration for WebSocket connections
+- Rate limiting on API endpoints
+- Secure email template rendering
+- Environment-based configuration

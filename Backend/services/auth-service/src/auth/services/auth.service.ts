@@ -11,7 +11,7 @@ import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 
 import { UsersService } from '../../users/services/users.service';
-import { EventPublisherService } from '../../events/services/event-publisher.service';
+// import { EventPublisherService } from '../../events/services/event-publisher.service';
 import { RegisterDto } from '../dto/register.dto';
 import { LoginDto } from '../dto/login.dto';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
@@ -41,7 +41,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly eventPublisher: EventPublisherService,
+    // private readonly eventPublisher: EventPublisherService,
   ) { }
 
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
@@ -68,7 +68,7 @@ export class AuthService {
     const user = await this.usersService.create(userData);
 
     // Publish user registration event
-    await this.eventPublisher.publishUserRegistered({
+    // await this.eventPublisher.publishUserRegistered({
       userId: user.id,
       email: user.email,
       fullName: user.fullName,
@@ -99,7 +99,7 @@ export class AuthService {
     await this.usersService.updateLastLogin(user.id);
 
     // Publish login event
-    await this.eventPublisher.publishUserLogin({
+    // await this.eventPublisher.publishUserLogin({
       userId: user.id,
       email: user.email,
       timestamp: new Date(),
@@ -149,7 +149,7 @@ export class AuthService {
 
     const user = await this.usersService.findById(userId);
     if (user) {
-      await this.eventPublisher.publishUserLogout({
+      // await this.eventPublisher.publishUserLogout({
         userId: user.id,
         email: user.email,
         timestamp: new Date(),
@@ -170,7 +170,7 @@ export class AuthService {
   async updateProfile(userId: string, updateData: UpdateProfileDto): Promise<Partial<UserEntity>> {
     const updatedUser = await this.usersService.update(userId, updateData);
 
-    await this.eventPublisher.publishUserProfileUpdated({
+    // await this.eventPublisher.publishUserProfileUpdated({
       userId: updatedUser.id,
       email: updatedUser.email,
       changes: updateData,

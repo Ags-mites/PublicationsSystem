@@ -1,0 +1,165 @@
+groups:
+  - name: microservices.rules
+    interval: 30s
+    rules:
+      # Service availability rules
+      - alert: ServiceDown
+        expr: up{job=~".*-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: microservice
+        annotations:
+          summary: "Service {{ $labels.service }} is down"
+          description: "Service {{ $labels.service }} on instance {{ $labels.instance }} has been down for more than 1 minute."
+
+      - alert: ServiceDegraded
+        expr: (rate(http_requests_total{status_code=~"5.."}[5m]) / rate(http_requests_total[5m])) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          component: microservice
+        annotations:
+          summary: "High error rate for {{ $labels.service }}"
+          description: "Service {{ $labels.service }} has error rate above 10% for more than 2 minutes."
+
+      # Response time rules
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: performance
+        annotations:
+          summary: "High response time for {{ $labels.service }}"
+          description: "95th percentile response time for {{ $labels.service }} is above 1 second."
+
+      # Gateway-specific rules
+      - alert: GatewayHighLoad
+        expr: rate(gateway_requests_total[5m]) > 100
+        for: 2m
+        labels:
+          severity: warning
+          component: gateway
+        annotations:
+          summary: "API Gateway experiencing high load"
+          description: "API Gateway is processing more than 100 requests per second."
+
+      - alert: CircuitBreakerOpen
+        expr: gateway_circuit_breakers_open > 0
+        for: 30s
+        labels:
+          severity: critical
+          component: circuit_breaker
+        annotations:
+          summary: "Circuit breaker(s) open"
+          description: "{{ $value }} circuit breaker(s) are currently open, indicating service failures."
+
+      # Rate limiting rules
+      - alert: HighRateLimitBlocking
+        expr: (rate(gateway_rate_limited_requests_total[5m]) / rate(gateway_requests_total[5m])) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          component: rate_limiting
+        annotations:
+          summary: "High rate limiting activity"
+          description: "More than 5% of requests are being rate limited."
+
+      # System resource rules
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is above 85% on {{ $labels.instance }}."
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is above 80% on {{ $labels.instance }}."
+
+      # Database connection rules
+      - alert: DatabaseConnectionsHigh
+        expr: database_connections_active / database_connections_max > 0.8
+        for: 2m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Database connections running high"
+          description: "Database connections are above 80% of maximum for {{ $labels.service }}."
+
+      # Custom business metrics
+      - alert: LowPublicationCreationRate
+        expr: rate(publications_created_total[1h]) < 0.1
+        for: 10m
+        labels:
+          severity: info
+          component: business
+        annotations:
+          summary: "Low publication creation rate"
+          description: "Publication creation rate is below normal levels."
+
+  - name: consul.rules
+    interval: 30s
+    rules:
+      - alert: ConsulServiceUnhealthy
+        expr: consul_health_service_status{status!="passing"} == 1
+        for: 1m
+        labels:
+          severity: warning
+          component: consul
+        annotations:
+          summary: "Consul service {{ $labels.service_name }} is unhealthy"
+          description: "Service {{ $labels.service_name }} registered in Consul is in {{ $labels.status }} state."
+
+      - alert: ConsulLeaderElection
+        expr: consul_raft_leader == 0
+        for: 30s
+        labels:
+          severity: critical
+          component: consul
+        annotations:
+          summary: "Consul has no leader"
+          description: "Consul cluster has no elected leader."
+
+  - name: recording.rules
+    interval: 30s
+    rules:
+      # Service-level SLIs
+      - record: sli:http_request_rate
+        expr: rate(http_requests_total[5m])
+
+      - record: sli:http_success_rate
+        expr: rate(http_requests_total{status_code!~"5.."}[5m]) / rate(http_requests_total[5m])
+
+      - record: sli:http_error_rate
+        expr: rate(http_requests_total{status_code=~"5.."}[5m]) / rate(http_requests_total[5m])
+
+      - record: sli:http_response_time_p99
+        expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))
+
+      - record: sli:http_response_time_p95
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
+
+      - record: sli:http_response_time_p50
+        expr: histogram_quantile(0.50, rate(http_request_duration_seconds_bucket[5m]))
+
+      # Gateway-specific SLIs
+      - record: gateway:request_rate
+        expr: rate(gateway_requests_total[5m])
+
+      - record: gateway:success_rate
+        expr: rate(gateway_requests_success_total[5m]) / rate(gateway_requests_total[5m])
+
+      - record: gateway:circuit_breaker_open_ratio
+        expr: gateway_circuit_breakers_open / gateway_circuit_breakers_total

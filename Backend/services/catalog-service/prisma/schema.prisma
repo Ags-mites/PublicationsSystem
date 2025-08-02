@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "cockroachdb"
+  url      = env("DATABASE_URL")
+}
+
+enum CatalogStatus {
+  ACTIVE
+  WITHDRAWN
+}
+
+model CatalogPublication {
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  originalId      String        @unique @map("original_id") @db.Uuid
+  title           String
+  abstract        String
+  keywords        String[]
+  type            String
+  primaryAuthor   String        @map("primary_author")
+  coAuthors       String[]      @map("co_authors")
+  metadata        Json          @default("{}")
+  publishedAt     DateTime      @map("published_at")
+  isbn            String?
+  doi             String?
+  category        String
+  license         String        @default("All Rights Reserved")
+  downloadUrl     String?       @map("download_url")
+  status          CatalogStatus @default(ACTIVE)
+  viewCount       Int           @default(0) @map("view_count")
+  indexedAt       DateTime      @default(now()) @map("indexed_at")
+  
+  @@map("catalog_publications")
+  @@index([title])
+  @@index([keywords])
+  @@index([category])
+  @@index([publishedAt])
+  @@index([type])
+  @@index([primaryAuthor])
+  @@index([status])
+  @@index([viewCount])
+  @@index([title, keywords])
+}
+
+model CatalogAuthor {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  originalId        String   @unique @map("original_id") @db.Uuid
+  fullName          String   @map("full_name")
+  affiliation       String
+  orcid             String?
+  publicationCount  Int      @default(0) @map("publication_count")
+  lastPublishedAt   DateTime @map("last_published_at")
+  
+  @@map("catalog_authors")
+  @@index([fullName])
+  @@index([affiliation])
+  @@index([publicationCount])
+}
+
+model SearchStatistics {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  query           String
+  resultCount     Int      @map("result_count")
+  executionTimeMs Int      @map("execution_time_ms")
+  filters         Json     @default("{}")
+  timestamp       DateTime @default(now())
+  
+  @@map("search_statistics")
+  @@index([timestamp])
+  @@index([query])
+}

@@ -11,6 +11,7 @@ import { EventsModule } from './events/events.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { JwtConfigService } from './config/jwt.config';
 import { DefaultUsersSeeder } from './seeds/default-users.seed';
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { DefaultUsersSeeder } from './seeds/default-users.seed';
     UsersModule,
     EventsModule,
   ],
+  controllers: [HealthController],
   providers: [DefaultUsersSeeder],
 })
 export class AppModule implements OnModuleInit {
