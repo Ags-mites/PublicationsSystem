@@ -19,11 +19,11 @@ export async function registerWithConsul(
       name: serviceName,
       id: serviceId,
       address: configService.get('SERVICE_HOST', 'localhost'),
-      port: parseInt(port.toString()),
+      port: port,
       tags: ['auth', 'microservice'],
       check: {
         name: `${serviceName}-health-check`,
-        http: `http://localhost:${port}/${apiPrefix}/auth/health`,
+        http: `http://localhost:${port}/${apiPrefix}/health`,
         interval: '10s',
         timeout: '5s'
       }

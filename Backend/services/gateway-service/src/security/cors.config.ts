@@ -5,7 +5,7 @@ export const corsConfig: CorsOptions = {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
-    const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:8080').split(',');
+    const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:5174,http://localhost:8080').split(',');
     
     // Allow all origins in development
     if (process.env.NODE_ENV === 'development') {
@@ -29,6 +29,7 @@ export const corsConfig: CorsOptions = {
     'Authorization',
     'X-Requested-With',
     'X-Request-ID',
+    'X-Correlation-ID',
     'X-User-ID',
     'X-User-Email',
     'X-User-Roles',
@@ -41,6 +42,7 @@ export const corsConfig: CorsOptions = {
   exposedHeaders: [
     'X-Total-Count',
     'X-Request-ID',
+    'X-Correlation-ID',
     'X-Response-Time',
     'X-Service-Time',
     'X-Gateway-Service',

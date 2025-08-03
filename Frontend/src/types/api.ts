@@ -45,51 +45,63 @@ export interface ApiHeaders {
 // ENUMS
 // ============================================================================
 
-export enum PublicationStatus {
-  DRAFT = 'DRAFT',
-  IN_REVIEW = 'IN_REVIEW',
-  CHANGES_REQUESTED = 'CHANGES_REQUESTED',
-  APPROVED = 'APPROVED',
-  PUBLISHED = 'PUBLISHED',
-  WITHDRAWN = 'WITHDRAWN'
-}
+export const PublicationStatus = {
+  DRAFT: 'DRAFT',
+  IN_REVIEW: 'IN_REVIEW',
+  CHANGES_REQUESTED: 'CHANGES_REQUESTED',
+  APPROVED: 'APPROVED',
+  PUBLISHED: 'PUBLISHED',
+  WITHDRAWN: 'WITHDRAWN'
+} as const;
 
-export enum PublicationType {
-  ARTICLE = 'ARTICLE',
-  BOOK = 'BOOK'
-}
+export type PublicationStatus = typeof PublicationStatus[keyof typeof PublicationStatus];
 
-export enum UserRole {
-  ROLE_AUTHOR = 'ROLE_AUTHOR',
-  ROLE_REVIEWER = 'ROLE_REVIEWER',
-  ROLE_EDITOR = 'ROLE_EDITOR',
-  ROLE_ADMIN = 'ROLE_ADMIN',
-  ROLE_READER = 'ROLE_READER'
-}
+export const PublicationType = {
+  ARTICLE: 'ARTICLE',
+  BOOK: 'BOOK'
+} as const;
 
-export enum NotificationType {
-  USER_LOGIN = 'USER_LOGIN',
-  USER_REGISTERED = 'USER_REGISTERED',
-  PUBLICATION_SUBMITTED = 'PUBLICATION_SUBMITTED',
-  PUBLICATION_APPROVED = 'PUBLICATION_APPROVED',
-  PUBLICATION_PUBLISHED = 'PUBLICATION_PUBLISHED',
-  REVIEW_REQUESTED = 'REVIEW_REQUESTED',
-  REVIEW_COMPLETED = 'REVIEW_COMPLETED',
-  CHANGES_REQUESTED = 'CHANGES_REQUESTED'
-}
+export type PublicationType = typeof PublicationType[keyof typeof PublicationType];
 
-export enum NotificationStatus {
-  PENDING = 'PENDING',
-  SENT = 'SENT',
-  FAILED = 'FAILED',
-  READ = 'READ'
-}
+export const UserRole = {
+  ROLE_AUTHOR: 'ROLE_AUTHOR',
+  ROLE_REVIEWER: 'ROLE_REVIEWER',
+  ROLE_EDITOR: 'ROLE_EDITOR',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_READER: 'ROLE_READER'
+} as const;
 
-export enum NotificationChannel {
-  EMAIL = 'EMAIL',
-  WEBSOCKET = 'WEBSOCKET',
-  PUSH = 'PUSH'
-}
+export type UserRole = typeof UserRole[keyof typeof UserRole];
+
+export const NotificationType = {
+  USER_LOGIN: 'USER_LOGIN',
+  USER_REGISTERED: 'USER_REGISTERED',
+  PUBLICATION_SUBMITTED: 'PUBLICATION_SUBMITTED',
+  PUBLICATION_APPROVED: 'PUBLICATION_APPROVED',
+  PUBLICATION_PUBLISHED: 'PUBLICATION_PUBLISHED',
+  REVIEW_REQUESTED: 'REVIEW_REQUESTED',
+  REVIEW_COMPLETED: 'REVIEW_COMPLETED',
+  CHANGES_REQUESTED: 'CHANGES_REQUESTED'
+} as const;
+
+export type NotificationType = typeof NotificationType[keyof typeof NotificationType];
+
+export const NotificationStatus = {
+  PENDING: 'PENDING',
+  SENT: 'SENT',
+  FAILED: 'FAILED',
+  READ: 'READ'
+} as const;
+
+export type NotificationStatus = typeof NotificationStatus[keyof typeof NotificationStatus];
+
+export const NotificationChannel = {
+  EMAIL: 'EMAIL',
+  WEBSOCKET: 'WEBSOCKET',
+  PUSH: 'PUSH'
+} as const;
+
+export type NotificationChannel = typeof NotificationChannel[keyof typeof NotificationChannel];
 
 // ============================================================================
 // AUTH SERVICE TYPES
@@ -277,6 +289,128 @@ export interface WithdrawPublicationResponse {
   status: PublicationStatus.WITHDRAWN
 }
 
+// ============================================================================
+// REVIEWS SERVICE TYPES
+// ============================================================================
+
+export interface ReviewSummary {
+  id: string
+  publicationId: string
+  publicationTitle: string
+  reviewerId: string
+  reviewerName: string
+  status: ReviewStatus
+  createdAt: string
+  completedAt?: string
+}
+
+export interface ReviewDetail {
+  id: string
+  publicationId: string
+  publicationTitle: string
+  reviewerId: string
+  reviewerName: string
+  status: ReviewStatus
+  overallRecommendation?: ReviewRecommendation
+  comments: string
+  strengths?: string
+  weaknesses?: string
+  suggestions?: string
+  confidenceLevel?: number
+  createdAt: string
+  completedAt?: string
+  changeRequests: ChangeRequest[]
+}
+
+export interface CreateReviewRequest {
+  publicationId: string
+  comments?: string
+}
+
+export interface CompleteReviewRequest {
+  overallRecommendation: ReviewRecommendation
+  comments: string
+  strengths?: string
+  weaknesses?: string
+  suggestions?: string
+  confidenceLevel?: number
+  changeRequests?: ChangeRequestInput[]
+}
+
+export interface ChangeRequest {
+  id: string
+  description: string
+  severity: ChangeSeverity
+  section?: string
+  lineNumber?: number
+  originalText?: string
+  suggestedText?: string
+  status: ChangeRequestStatus
+  createdAt: string
+}
+
+export interface ChangeRequestInput {
+  description: string
+  severity: ChangeSeverity
+  section?: string
+  lineNumber?: number
+  originalText?: string
+  suggestedText?: string
+}
+
+export interface SubmitForReviewRequest {
+  notes?: string
+}
+
+export interface ApprovePublicationRequest {
+  notes?: string
+}
+
+export interface PublishPublicationRequest {
+  notes?: string
+}
+
+export interface RequestChangesRequest {
+  notes: string
+  changeRequests: ChangeRequestInput[]
+}
+
+// Review-related enums
+export const ReviewStatus = {
+  ASSIGNED: 'ASSIGNED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  DECLINED: 'DECLINED'
+} as const;
+
+export type ReviewStatus = typeof ReviewStatus[keyof typeof ReviewStatus];
+
+export const ReviewRecommendation = {
+  ACCEPT: 'ACCEPT',
+  MINOR_REVISIONS: 'MINOR_REVISIONS',
+  MAJOR_REVISIONS: 'MAJOR_REVISIONS',
+  REJECT: 'REJECT'
+} as const;
+
+export type ReviewRecommendation = typeof ReviewRecommendation[keyof typeof ReviewRecommendation];
+
+export const ChangeSeverity = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  CRITICAL: 'CRITICAL'
+} as const;
+
+export type ChangeSeverity = typeof ChangeSeverity[keyof typeof ChangeSeverity];
+
+export const ChangeRequestStatus = {
+  PENDING: 'PENDING',
+  ADDRESSED: 'ADDRESSED',
+  REJECTED: 'REJECTED'
+} as const;
+
+export type ChangeRequestStatus = typeof ChangeRequestStatus[keyof typeof ChangeRequestStatus];
+
 export interface StatusHistoryItem {
   id: string
   fromStatus: PublicationStatus
@@ -452,6 +586,69 @@ export interface NotificationStats {
   failed: number
   byType: { type: string, count: number }[]
   byChannel: { channel: string, count: number }[]
+}
+
+// Additional notification types
+export interface NotificationSubscription {
+  id: string
+  userId: string
+  type: NotificationType
+  channel: NotificationChannel
+  enabled: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateSubscriptionRequest {
+  type: NotificationType
+  channel: NotificationChannel
+  enabled?: boolean
+}
+
+export interface UpdateSubscriptionRequest {
+  enabled: boolean
+}
+
+export interface NotificationPreferences {
+  id: string
+  userId: string
+  emailNotifications: boolean
+  pushNotifications: boolean
+  websocketNotifications: boolean
+  notificationTypes: NotificationType[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface UpdatePreferencesRequest {
+  emailNotifications?: boolean
+  pushNotifications?: boolean
+  websocketNotifications?: boolean
+  notificationTypes?: NotificationType[]
+}
+
+// Additional catalog types
+export interface CatalogAuthor {
+  id: string
+  originalId: string
+  fullName: string
+  affiliation: string
+  orcid?: string
+  biography?: string
+  publicationCount: number
+}
+
+export interface AuthorPublications {
+  author: CatalogAuthor
+  publications: CatalogPublicationItem[]
+  pagination: {
+    page: number
+    limit: number
+    totalCount: number
+    totalPages: number
+    hasNext: boolean
+    hasPrev: boolean
+  }
 }
 
 // ============================================================================
