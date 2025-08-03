@@ -2,7 +2,6 @@ import { Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-//import { ScheduleModule } from '@nestjs/schedule';
 import * as Joi from 'joi';
 
 import { AuthModule } from './auth/auth.module';
@@ -30,7 +29,6 @@ import { HealthController } from './health.controller';
         BCRYPT_ROUNDS: Joi.number().default(12),
       }),
     }),
-    //ScheduleModule.forRoot(),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       useClass: JwtConfigService,

@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { Transport, MicroserviceOptions } from '@nestjs/microservices';
 import helmet from 'helmet';
 import * as compression from 'compression';
 import { ValidationPipe, Logger } from '@nestjs/common';
@@ -90,27 +89,10 @@ async function bootstrap() {
       new TransformInterceptor(),
     );
 
-    // RabbitMQ microservice setup - DISABLED temporarily
-    /*
-    app.connectMicroservice<MicroserviceOptions>({
-      transport: Transport.RMQ,
-      options: {
-        urls: [configService.get<string>('RABBITMQ_URL', 'amqp://localhost:5672')],
-        queue: 'publications_queue',
-        queueOptions: {
-          durable: true,
-        },
-      },
-    });
-    */
-
     // Configuración de Swagger en desarrollo
     if (process.env.NODE_ENV === 'development') {
       await setupSwagger(app);
     }
-
-    // Start microservice - DISABLED temporarily
-    // await app.startAllMicroservices();
 
     // Iniciar el servidor
     await app.listen(port);
