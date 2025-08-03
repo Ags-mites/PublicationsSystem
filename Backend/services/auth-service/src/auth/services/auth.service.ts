@@ -69,12 +69,12 @@ export class AuthService {
 
     // Publish user registration event
     // await this.eventPublisher.publishUserRegistered({
-      userId: user.id,
-      email: user.email,
-      fullName: user.fullName,
-      roles: user.roles,
-      timestamp: new Date(),
-    });
+    //   userId: user.id,
+    //   email: user.email,
+    //   fullName: user.fullName,
+    //   roles: user.roles,
+    //   timestamp: new Date(),
+    // });
 
     this.logger.log(`User registered: ${user.email}`);
 
@@ -100,10 +100,10 @@ export class AuthService {
 
     // Publish login event
     // await this.eventPublisher.publishUserLogin({
-      userId: user.id,
-      email: user.email,
-      timestamp: new Date(),
-    });
+    //   userId: user.id,
+    //   email: user.email,
+    //   timestamp: new Date(),
+    // });
 
     this.logger.log(`User logged in: ${user.email}`);
 
@@ -150,10 +150,10 @@ export class AuthService {
     const user = await this.usersService.findById(userId);
     if (user) {
       // await this.eventPublisher.publishUserLogout({
-        userId: user.id,
-        email: user.email,
-        timestamp: new Date(),
-      });
+      //   userId: user.id,
+      //   email: user.email,
+      //   timestamp: new Date(),
+      // });
     }
 
     this.logger.log(`User logged out: ${userId}`);
@@ -171,11 +171,11 @@ export class AuthService {
     const updatedUser = await this.usersService.update(userId, updateData);
 
     // await this.eventPublisher.publishUserProfileUpdated({
-      userId: updatedUser.id,
-      email: updatedUser.email,
-      changes: updateData,
-      timestamp: new Date(),
-    });
+    //   userId: updatedUser.id,
+    //   email: updatedUser.email,
+    //   changes: updateData,
+    //   timestamp: new Date(),
+    // });
 
     this.logger.log(`Profile updated: ${updatedUser.email}`);
 
@@ -198,7 +198,7 @@ export class AuthService {
     return null;
   }
 
-  async introspectToken(token: string): Promise<{ active: boolean;[key: string]: any }> {
+  async introspectToken(token: string): Promise<{ active: boolean; [key: string]: any }> {
     try {
       const payload = this.jwtService.verify(token) as JwtPayload;
       const user = await this.validateJwtPayload(payload);

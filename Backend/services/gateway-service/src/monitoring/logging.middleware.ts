@@ -28,6 +28,9 @@ export class LoggingMiddleware implements NestMiddleware {
     const startTime = Date.now();
     const requestId = this.generateRequestId();
     
+    // Store middleware instance reference
+    const middlewareInstance = this;
+    
     // Add request ID to request
     req.headers['x-request-id'] = requestId;
 
@@ -96,29 +99,29 @@ export class LoggingMiddleware implements NestMiddleware {
       // Log based on status code
       if (statusCode >= 500) {
         responseLog.error = 'Server error';
-        LoggingMiddleware.prototype.logger.error(
+        middlewareInstance.logger.error(
           `${responseLog.method} ${responseLog.path} - ${statusCode} - ${responseTime}ms`,
           'RESPONSE',
         );
       } else if (statusCode >= 400) {
         responseLog.error = 'Client error';
-        LoggingMiddleware.prototype.logger.warn(
+        middlewareInstance.logger.warn(
           `${responseLog.method} ${responseLog.path} - ${statusCode} - ${responseTime}ms`,
           'RESPONSE',
         );
       } else {
-        LoggingMiddleware.prototype.logger.log(
+        middlewareInstance.logger.log(
           `${responseLog.method} ${responseLog.path} - ${statusCode} - ${responseTime}ms`,
           'RESPONSE',
         );
       }
 
       // Log detailed response in debug mode
-      LoggingMiddleware.prototype.logger.debug(
+      middlewareInstance.logger.debug(
         JSON.stringify({
           type: 'response',
           ...responseLog,
-          headers: LoggingMiddleware.prototype.sanitizeHeaders(res.getHeaders()),
+          headers: middlewareInstance.sanitizeHeaders(res.getHeaders()),
         }),
       );
 
@@ -138,11 +141,11 @@ export class LoggingMiddleware implements NestMiddleware {
       };
 
       // Log response body in debug mode
-      this.logger.debug(
+      middlewareInstance.logger.debug(
         JSON.stringify({
           type: 'response-body',
           ...responseLog,
-          body: this.sanitizeBody(body),
+          body: middlewareInstance.sanitizeBody(body),
         }),
       );
 

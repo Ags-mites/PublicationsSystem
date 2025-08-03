@@ -14,6 +14,8 @@ import { SubscriptionsController } from './controllers/subscriptions.controller'
 import { HealthController } from './controllers/health.controller';
 
 import { NotificationProcessor } from './queues/notification.processor';
+import { NotificationProcessingService } from './services/notification-processing.service';
+import { EmailService } from './services/email.service';
 
 import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
@@ -70,6 +72,8 @@ import redisConfig from './config/redis.config';
   ],
   providers: [
     NotificationProcessor,
+    NotificationProcessingService,
+    EmailService,
   ],
 })
 export class AppModule {}

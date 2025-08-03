@@ -64,7 +64,7 @@ async function bootstrap() {
 
   await app.listen(port);
 
-  // await registerWithConsul(configService, port, apiPrefix); 
+  await registerWithConsul(configService, port, apiPrefix); 
   console.log(`� Swagger docs: http://localhost:${port}/docs`);
 
   process.on('SIGTERM', async () => {

@@ -16,10 +16,32 @@ export const routeConfig: ServiceRoute[] = [
     serviceId: 'publications-service',
     stripPrefix: true,
     requireAuth: true,
-    roles: ['ROLE_AUTHOR', 'ROLE_REVIEWER', 'ROLE_EDITOR'],
+    roles: ['ROLE_AUTOR', 'ROLE_REVISOR', 'ROLE_EDITOR', 'ROLE_ADMIN'],
     rateLimit: {
       windowMs: 60000, // 1 minute
       max: 50, // 50 requests per minute
+    },
+  },
+  {
+    pattern: '/api/authors/*',
+    serviceId: 'publications-service',
+    stripPrefix: true,
+    requireAuth: true,
+    roles: ['ROLE_AUTOR', 'ROLE_REVISOR', 'ROLE_EDITOR', 'ROLE_ADMIN'],
+    rateLimit: {
+      windowMs: 60000, // 1 minute
+      max: 50, // 50 requests per minute
+    },
+  },
+  {
+    pattern: '/api/reviews/*',
+    serviceId: 'publications-service',
+    stripPrefix: true,
+    requireAuth: true,
+    roles: ['ROLE_REVISOR', 'ROLE_EDITOR', 'ROLE_ADMIN'],
+    rateLimit: {
+      windowMs: 60000, // 1 minute
+      max: 30, // 30 requests per minute
     },
   },
   {

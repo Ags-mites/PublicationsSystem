@@ -6,9 +6,8 @@ import {
   HttpException,
   HttpStatus,
   Logger,
-  UseInterceptors,
 } from '@nestjs/common';
-import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
+import { CacheTTL } from '@nestjs/cache-manager';
 import {
   ApiTags,
   ApiOperation,
@@ -22,7 +21,6 @@ import { CatalogAuthorDto, CatalogPublicationDto, PaginationDto } from '../dto';
 
 @ApiTags('Authors')
 @Controller('catalog/authors')
-@UseInterceptors(CacheInterceptor)
 export class AuthorsController {
   private readonly logger = new Logger(AuthorsController.name);
 

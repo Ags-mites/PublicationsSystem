@@ -70,7 +70,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-  const port = configService.get<number>('PORT', 3004);
+  const port = parseInt(configService.get<string>('PORT', '3004'), 10);
   const apiPrefix = configService.get<string>('API_PREFIX', 'api/v1');
 
   // Security middleware

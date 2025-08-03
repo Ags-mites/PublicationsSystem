@@ -24,7 +24,7 @@ export class ConsulService {
         name: serviceName,
         id: `${serviceName}-${process.pid}`,
         address: 'localhost',
-        port,
+        port: parseInt(port.toString(), 10),
         tags: ['catalog', 'public', 'search'],
         check: {
           name: `${serviceName}-health-check`,

@@ -206,15 +206,27 @@ export class CatalogService {
 
   async getHealthStatus(): Promise<any> {
     try {
-      const [totalPublications, totalAuthors, dbConnected] = await Promise.all([
-        this.prisma.catalogPublication.count({ where: { status: CatalogStatus.ACTIVE } }),
+      // First check database connection
+      const dbConnected = await this.checkDatabaseConnection();
+      
+      if (!dbConnected) {
+        return {
+          status: 'unhealthy',
+          database: 'disconnected',
+          error: 'Database connection failed',
+          timestamp: new Date().toISOString(),
+        };
+      }
+
+      // If database is connected, get statistics
+      const [totalPublications, totalAuthors] = await Promise.all([
+        this.prisma.catalogPublication.count({ where: { status: 'ACTIVE' } }),
         this.prisma.catalogAuthor.count(),
-        this.checkDatabaseConnection(),
       ]);
 
       return {
         status: 'healthy',
-        database: dbConnected ? 'connected' : 'disconnected',
+        database: 'connected',
         totalPublications,
         totalAuthors,
         uptime: process.uptime(),

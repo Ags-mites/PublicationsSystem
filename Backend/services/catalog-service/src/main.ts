@@ -3,6 +3,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { CacheInterceptor } from '@nestjs/cache-manager';
+import { Reflector } from '@nestjs/core';
 import helmet from 'helmet';
 import * as compression from 'compression';
 import { AppModule } from './app.module';
@@ -28,7 +30,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-  const port = configService.get<number>('PORT', 3003);
+  const port = parseInt(configService.get<string>('PORT', '3003'), 10);
   const apiPrefix = configService.get<string>('API_PREFIX', 'api/v1');
 
   // Security middleware
@@ -52,8 +54,13 @@ async function bootstrap() {
     disableErrorMessages: false,
   }));
 
-  app.useGlobalFilters(new HttpExceptionFilter());
+  // app.useGlobalFilters(new HttpExceptionFilter()); // DISABLED temporarily
   app.useGlobalInterceptors(new LoggingInterceptor());
+  
+  // Global cache interceptor - DISABLED temporarily
+  // const cacheManager = app.get('CACHE_MANAGER');
+  // const reflector = app.get(Reflector);
+  // app.useGlobalInterceptors(new CacheInterceptor(cacheManager, reflector));
 
   // RabbitMQ microservice setup - DISABLED temporarily
   /*

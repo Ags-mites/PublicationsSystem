@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { Reflector } from '@nestjs/core';
 
 import { PrismaModule } from './prisma/prisma.module';
 import { EventsModule } from './events/events.module';
@@ -59,6 +60,8 @@ import rabbitmqConfig from './config/rabbitmq.config';
     HealthController,
   ],
   providers: [
+    CatalogService,
+    CatalogAuthorService,
     CatalogSearchService,
     MetricsService,
     ConsulService,

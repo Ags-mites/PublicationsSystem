@@ -42,7 +42,7 @@ async function bootstrap() {
 
     const configService = app.get(ConfigService);
     const apiPrefix = configService.get<string>('API_PREFIX', 'api/v1');
-    const port = configService.get<number>('PORT', 3002);
+    const port = parseInt(configService.get<string>('PORT', '3002'), 10);
 
     // Configuración de seguridad y middleware
     app.use(helmet({
