@@ -11,7 +11,7 @@ import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 
 import { UsersService } from '../../users/services/users.service';
-// import { EventPublisherService } from '../../events/services/event-publisher.service';
+import { EventPublisherService } from '../../events/services/event-publisher.service';
 import { RegisterDto } from '../dto/register.dto';
 import { LoginDto } from '../dto/login.dto';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
@@ -21,6 +21,7 @@ export interface JwtPayload {
   sub: string;
   email: string;
   roles: UserRole[];
+  scope?: string;
   iat?: number;
   exp?: number;
   jti?: string;
@@ -41,7 +42,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    // private readonly eventPublisher: EventPublisherService,
+    private readonly eventPublisher: EventPublisherService,
   ) { }
 
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
@@ -68,13 +69,13 @@ export class AuthService {
     const user = await this.usersService.create(userData);
 
     // Publish user registration event
-    // await this.eventPublisher.publishUserRegistered({
-    //   userId: user.id,
-    //   email: user.email,
-    //   fullName: user.fullName,
-    //   roles: user.roles,
-    //   timestamp: new Date(),
-    // });
+    await this.eventPublisher.publishUserRegistered({
+      userId: user.id,
+      email: user.email,
+      fullName: `${user.firstName} ${user.lastName}`,
+      roles: user.roles,
+      timestamp: new Date(),
+    });
 
     this.logger.log(`User registered: ${user.email}`);
 
@@ -99,11 +100,11 @@ export class AuthService {
     await this.usersService.updateLastLogin(user.id);
 
     // Publish login event
-    // await this.eventPublisher.publishUserLogin({
-    //   userId: user.id,
-    //   email: user.email,
-    //   timestamp: new Date(),
-    // });
+    await this.eventPublisher.publishUserLogin({
+      userId: user.id,
+      email: user.email,
+      timestamp: new Date(),
+    });
 
     this.logger.log(`User logged in: ${user.email}`);
 
@@ -149,11 +150,11 @@ export class AuthService {
 
     const user = await this.usersService.findById(userId);
     if (user) {
-      // await this.eventPublisher.publishUserLogout({
-      //   userId: user.id,
-      //   email: user.email,
-      //   timestamp: new Date(),
-      // });
+      await this.eventPublisher.publishUserLogout({
+        userId: user.id,
+        email: user.email,
+        timestamp: new Date(),
+      });
     }
 
     this.logger.log(`User logged out: ${userId}`);
@@ -170,12 +171,12 @@ export class AuthService {
   async updateProfile(userId: string, updateData: UpdateProfileDto): Promise<Partial<UserEntity>> {
     const updatedUser = await this.usersService.update(userId, updateData);
 
-    // await this.eventPublisher.publishUserProfileUpdated({
-    //   userId: updatedUser.id,
-    //   email: updatedUser.email,
-    //   changes: updateData,
-    //   timestamp: new Date(),
-    // });
+    await this.eventPublisher.publishUserProfileUpdated({
+      userId: updatedUser.id,
+      email: updatedUser.email,
+      changes: updateData,
+      timestamp: new Date(),
+    });
 
     this.logger.log(`Profile updated: ${updatedUser.email}`);
 
@@ -245,10 +246,15 @@ export class AuthService {
     expiresIn: number;
   }> {
     const jti = crypto.randomUUID();
+    
+    // Generate scope based on roles
+    const scopes = this.generateScopesFromRoles(user.roles);
+    
     const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
       roles: user.roles,
+      scope: scopes.join(' '),
       jti,
     };
 
@@ -263,6 +269,32 @@ export class AuthService {
       refreshToken,
       expiresIn: expiresInSeconds,
     };
+  }
+
+  private generateScopesFromRoles(roles: UserRole[]): string[] {
+    const scopes: string[] = [];
+    
+    roles.forEach(role => {
+      switch (role) {
+        case UserRole.ROLE_ADMIN:
+          scopes.push('admin', 'manage_users', 'manage_content', 'read', 'write');
+          break;
+        case UserRole.ROLE_EDITOR:
+          scopes.push('manage_content', 'read', 'write');
+          break;
+        case UserRole.ROLE_AUTHOR:
+          scopes.push('create_content', 'read', 'write');
+          break;
+        case UserRole.ROLE_REVIEWER:
+          scopes.push('review_content', 'read');
+          break;
+        case UserRole.ROLE_READER:
+          scopes.push('read');
+          break;
+      }
+    });
+    
+    return [...new Set(scopes)]; // Remove duplicates
   }
 
   private parseExpiresIn(expiresIn: string): number {

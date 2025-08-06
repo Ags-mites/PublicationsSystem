@@ -5,7 +5,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import * as compression from 'compression';
 import { AppModule } from './app.module';
-import { registerWithConsul } from './consul/consul.service';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
 
@@ -46,8 +45,8 @@ async function bootstrap() {
 
   await app.listen(port);
 
-  await registerWithConsul(configService, port, apiPrefix); 
-  console.log(`� Swagger docs: http://localhost:${port}/docs`);
+  console.log(`✅ Swagger docs: http://localhost:${port}/docs`);
+  console.log(`🚀 Auth Service running on port ${port}`);
 
   process.on('SIGTERM', async () => {
     await app.close();

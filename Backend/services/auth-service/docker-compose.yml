@@ -1,0 +1,15 @@
+services:
+  cockroachdb:
+    image: cockroachdb/cockroach:latest
+    container_name: auth-service-cockroachdb
+    ports:
+      - "26257:26257"
+      - "8080:8080"
+    volumes:
+      - cockroach-data:/cockroach/cockroach-data
+    command: start-single-node --insecure --advertise-addr=localhost
+    environment:
+      - COCKROACH_DB=auth_service
+
+volumes:
+  cockroach-data: 

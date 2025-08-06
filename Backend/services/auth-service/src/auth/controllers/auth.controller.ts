@@ -112,7 +112,6 @@ export class AuthController {
     };
   }
 
-  // Admin endpoints
   @Get('users')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ROLE_ADMIN)

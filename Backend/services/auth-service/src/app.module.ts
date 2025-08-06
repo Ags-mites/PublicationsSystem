@@ -23,8 +23,8 @@ import { HealthController } from './health.controller';
         JWT_SECRET: Joi.string().min(32).required(),
         JWT_REFRESH_SECRET: Joi.string().min(32).required(),
         RABBITMQ_URL: Joi.string().required(),
-        CONSUL_HOST: Joi.string().default('localhost'),
-        CONSUL_PORT: Joi.number().default(8500),
+        // CONSUL_HOST: Joi.string().default('localhost'), // Eliminado
+        // CONSUL_PORT: Joi.number().default(8500), // Eliminado
         SERVICE_NAME: Joi.string().default('auth-service'),
         BCRYPT_ROUNDS: Joi.number().default(12),
       }),

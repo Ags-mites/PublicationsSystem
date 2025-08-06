@@ -86,7 +86,6 @@ export class DefaultUsersSeeder {
               roles: defaultUser.roles,
               affiliation: defaultUser.affiliation,
               isActive: true,
-              emailVerified: true,
             },
           });
 
@@ -96,7 +95,7 @@ export class DefaultUsersSeeder {
         }
       }
 
-      this.logger.log('� Default users seeding completed');
+      this.logger.log('✅ Default users seeding completed');
     } catch (error) {
       this.logger.error('❌ Error seeding default users', error);
     }

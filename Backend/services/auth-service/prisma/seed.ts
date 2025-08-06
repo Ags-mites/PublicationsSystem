@@ -66,7 +66,6 @@ async function main() {
                     roles: userData.roles as any,
                     affiliation: userData.affiliation,
                     isActive: true,
-                    emailVerified: true,
                 },
             });
 
