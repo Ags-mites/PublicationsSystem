@@ -35,34 +35,34 @@ const LoginForm: React.FC = () => {
       
       dispatch(setCredentials(result));
       
-      toast.success('Login successful');
+      toast.success('Inicio de sesión exitoso');
       
       // Redirect to the page they tried to visit or dashboard
       const from = location.state?.from?.pathname || '/dashboard';
       navigate(from, { replace: true });
     } catch (error: any) {
       console.error('Login error:', error);
-      toast.error(error.message || 'Login failed');
+      toast.error(error.message || 'Error en el inicio de sesión');
     }
   };
 
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Sign In</CardTitle>
+        <CardTitle>Iniciar Sesión</CardTitle>
         <CardDescription>
-          Enter your credentials to access your account
+          Ingresa tus credenciales para acceder a tu cuenta
         </CardDescription>
       </CardHeader>
       
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Correo Electrónico</Label>
             <Input
               id="email"
               type="email"
-              placeholder="your.email@example.com"
+              placeholder="tu.correo@ejemplo.com"
               {...form.register('email')}
               className={form.formState.errors.email ? 'border-red-500' : ''}
             />
@@ -74,11 +74,11 @@ const LoginForm: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Contraseña</Label>
             <Input
               id="password"
               type="password"
-              placeholder="Enter your password"
+              placeholder="Ingresa tu contraseña"
               {...form.register('password')}
               className={form.formState.errors.password ? 'border-red-500' : ''}
             />
@@ -96,16 +96,16 @@ const LoginForm: React.FC = () => {
             className="w-full" 
             disabled={isLoading}
           >
-            {isLoading ? 'Signing in...' : 'Sign In'}
+            {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
           </Button>
           
           <div className="text-center text-sm">
-            <span className="text-gray-600">Don't have an account? </span>
+            <span className="text-gray-600">¿No tienes una cuenta? </span>
             <Link 
               to="/register" 
               className="font-medium text-blue-600 hover:text-blue-500"
             >
-              Sign up
+              Registrarse
             </Link>
           </div>
         </CardFooter>

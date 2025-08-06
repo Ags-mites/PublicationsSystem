@@ -42,21 +42,21 @@ const RegisterForm: React.FC = () => {
       
       dispatch(setCredentials(result));
       
-      toast.success('Registration successful! Welcome to the platform.');
+      toast.success('¡Registro exitoso! Bienvenido/a a la plataforma.');
       
       navigate('/dashboard', { replace: true });
     } catch (error: any) {
       console.error('Registration error:', error);
-      toast.error(error.message || 'Registration failed');
+      toast.error(error.message || 'Error en el registro');
     }
   };
 
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Create Account</CardTitle>
+        <CardTitle>Crear Cuenta</CardTitle>
         <CardDescription>
-          Join the Academic Publications Management System
+          Únete al Sistema de Gestión de Publicaciones Académicas
         </CardDescription>
       </CardHeader>
       
@@ -64,7 +64,7 @@ const RegisterForm: React.FC = () => {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
+              <Label htmlFor="firstName">Nombre</Label>
               <Input
                 id="firstName"
                 placeholder="John"
@@ -79,7 +79,7 @@ const RegisterForm: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
+              <Label htmlFor="lastName">Apellido</Label>
               <Input
                 id="lastName"
                 placeholder="Doe"
@@ -95,11 +95,11 @@ const RegisterForm: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Correo Electrónico</Label>
             <Input
               id="email"
               type="email"
-              placeholder="john.doe@university.edu"
+              placeholder="juan.perez@universidad.edu"
               {...form.register('email')}
               className={form.formState.errors.email ? 'border-red-500' : ''}
             />
@@ -111,11 +111,11 @@ const RegisterForm: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Contraseña</Label>
             <Input
               id="password"
               type="password"
-              placeholder="Create a strong password"
+              placeholder="Crea una contraseña segura"
               {...form.register('password')}
               className={form.formState.errors.password ? 'border-red-500' : ''}
             />
@@ -127,11 +127,11 @@ const RegisterForm: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
             <Input
               id="confirmPassword"
               type="password"
-              placeholder="Confirm your password"
+              placeholder="Confirma tu contraseña"
               {...form.register('confirmPassword')}
               className={form.formState.errors.confirmPassword ? 'border-red-500' : ''}
             />
@@ -143,10 +143,10 @@ const RegisterForm: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="affiliation">Affiliation (Optional)</Label>
+            <Label htmlFor="affiliation">Afiliación (Opcional)</Label>
             <Input
               id="affiliation"
-              placeholder="University of Example"
+              placeholder="Universidad de Ejemplo"
               {...form.register('affiliation')}
               className={form.formState.errors.affiliation ? 'border-red-500' : ''}
             />
@@ -179,16 +179,16 @@ const RegisterForm: React.FC = () => {
             className="w-full" 
             disabled={isLoading}
           >
-            {isLoading ? 'Creating account...' : 'Create Account'}
+            {isLoading ? 'Creando cuenta...' : 'Crear Cuenta'}
           </Button>
           
           <div className="text-center text-sm">
-            <span className="text-gray-600">Already have an account? </span>
+            <span className="text-gray-600">¿Ya tienes una cuenta? </span>
             <Link 
               to="/login" 
               className="font-medium text-blue-600 hover:text-blue-500"
             >
-              Sign in
+              Iniciar sesión
             </Link>
           </div>
         </CardFooter>

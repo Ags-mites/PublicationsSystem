@@ -64,8 +64,8 @@ export const PublicationType = {
 export type PublicationType = typeof PublicationType[keyof typeof PublicationType];
 
 export const UserRole = {
-  ROLE_AUTHOR: 'ROLE_AUTHOR',
-  ROLE_REVIEWER: 'ROLE_REVIEWER',
+  ROLE_AUTOR: 'ROLE_AUTOR',
+  ROLE_REVISOR: 'ROLE_REVISOR',
   ROLE_EDITOR: 'ROLE_EDITOR',
   ROLE_ADMIN: 'ROLE_ADMIN',
   ROLE_READER: 'ROLE_READER'
@@ -108,19 +108,19 @@ export type NotificationChannel = typeof NotificationChannel[keyof typeof Notifi
 // ============================================================================
 
 export interface UserProfile {
-  id: string
+  id: number
   firstName: string
   lastName: string
   email: string
-  roles: UserRole[]
+  role: UserRole
   affiliation?: string
   orcid?: string
   biography?: string
   profileImageUrl?: string
-  emailVerified: boolean
+  emailVerified?: boolean
   lastLoginAt?: string
-  createdAt: string
-  updatedAt: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface RegisterRequest {
@@ -128,13 +128,14 @@ export interface RegisterRequest {
   lastName: string
   email: string
   password: string
-  roles?: UserRole[]
+  role?: UserRole
   affiliation?: string
   orcid?: string
   biography?: string
 }
 
 export interface RegisterResponse {
+  message: string
   user: UserProfile
   accessToken: string
   refreshToken: string
@@ -146,6 +147,7 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
+  message: string
   user: UserProfile
   accessToken: string
   refreshToken: string

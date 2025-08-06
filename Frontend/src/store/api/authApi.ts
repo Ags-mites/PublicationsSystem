@@ -21,10 +21,10 @@ export const authApi = baseApi.injectEndpoints({
         body: credentials,
       }),
       invalidatesTags: ['User'],
-      transformResponse: (response: ApiResponse<LoginResponse>) => response.data,
+      transformResponse: (response: LoginResponse) => response,
       transformErrorResponse: (response: any) => ({
         status: response.status,
-        message: response.data?.message || 'Login failed',
+        message: response.data?.message || 'Error en el inicio de sesión',
         errors: response.data?.errors || [],
       }),
     }),
@@ -36,10 +36,10 @@ export const authApi = baseApi.injectEndpoints({
         method: 'POST',
         body: userData,
       }),
-      transformResponse: (response: ApiResponse<RegisterResponse>) => response.data,
+      transformResponse: (response: RegisterResponse) => response,
       transformErrorResponse: (response: any) => ({
         status: response.status,
-        message: response.data?.message || 'Registration failed',
+        message: response.data?.message || 'Error en el registro',
         errors: response.data?.errors || [],
       }),
     }),
@@ -48,7 +48,7 @@ export const authApi = baseApi.injectEndpoints({
     getProfile: builder.query<UserProfile, void>({
       query: () => 'auth/profile',
       providesTags: ['User'],
-      transformResponse: (response: ApiResponse<UserProfile>) => response.data,
+      transformResponse: (response: UserProfile) => response,
       transformErrorResponse: (response: any) => ({
         status: response.status,
         message: response.data?.message || 'Failed to fetch profile',
@@ -64,7 +64,7 @@ export const authApi = baseApi.injectEndpoints({
         body: updateData,
       }),
       invalidatesTags: ['User'],
-      transformResponse: (response: ApiResponse<UserProfile>) => response.data,
+      transformResponse: (response: UserProfile) => response,
       transformErrorResponse: (response: any) => ({
         status: response.status,
         message: response.data?.message || 'Profile update failed',

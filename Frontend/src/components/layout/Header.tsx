@@ -26,7 +26,7 @@ const Header: React.FC = () => {
       console.warn('Logout API call failed:', error);
     } finally {
       dispatch(logout());
-      toast.success('Logged out successfully');
+      toast.success('Sesión cerrada correctamente');
       navigate('/');
     }
   };
@@ -42,7 +42,7 @@ const Header: React.FC = () => {
                 <span className="text-white font-bold text-sm">AP</span>
               </div>
               <span className="text-xl font-semibold text-gray-900">
-                Academic Publications
+                Sistema de Publicaciones
               </span>
             </Link>
           </div>
@@ -53,7 +53,7 @@ const Header: React.FC = () => {
               to="/catalog"
               className="text-gray-600 hover:text-gray-900 transition-colors"
             >
-              Catalog
+              Catálogo
             </Link>
             
             {isAuthenticated && (
@@ -68,17 +68,17 @@ const Header: React.FC = () => {
                   to="/publications"
                   className="text-gray-600 hover:text-gray-900 transition-colors"
                 >
-                  My Publications
+                  Mis Publicaciones
                 </Link>
-                {user?.roles.includes('ROLE_REVIEWER' as any) && (
+                {user?.role === 'ROLE_REVISOR' && (
                   <Link
                     to="/reviews"
                     className="text-gray-600 hover:text-gray-900 transition-colors"
                   >
-                    Reviews
+                    Revisiones
                   </Link>
                 )}
-                {(user?.roles.includes('ROLE_EDITOR' as any) || user?.roles.includes('ROLE_ADMIN' as any)) && (
+                {(user?.role === 'ROLE_EDITOR' || user?.role === 'ROLE_ADMIN') && (
                   <Link
                     to="/editorial"
                     className="text-gray-600 hover:text-gray-900 transition-colors"
@@ -123,17 +123,17 @@ const Header: React.FC = () => {
                     size="sm"
                     onClick={handleLogout}
                   >
-                    Logout
+                    Cerrar Sesión
                   </Button>
                 </div>
               </>
             ) : (
               <div className="flex items-center space-x-2">
                 <Button variant="outline" size="sm" asChild>
-                  <Link to="/login">Sign In</Link>
+                  <Link to="/login">Iniciar Sesión</Link>
                 </Button>
                 <Button size="sm" asChild>
-                  <Link to="/register">Sign Up</Link>
+                  <Link to="/register">Registrarse</Link>
                 </Button>
               </div>
             )}

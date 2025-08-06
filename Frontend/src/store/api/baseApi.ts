@@ -8,7 +8,7 @@ const generateCorrelationId = (): string => {
 
 // Base query with authentication and error handling
 const baseQuery = fetchBaseQuery({
-  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api',
+  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api/v1',
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.accessToken;
     

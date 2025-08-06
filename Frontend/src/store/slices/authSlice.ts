@@ -128,10 +128,14 @@ export const selectAuthLoading = (state: { auth: AuthState }) => state.auth.isLo
 export const selectAuthError = (state: { auth: AuthState }) => state.auth.error;
 
 // Helper selectors
-export const selectUserRoles = (state: { auth: AuthState }) => state.auth.user?.roles || [];
+export const selectUserRole = (state: { auth: AuthState }) => state.auth.user?.role || null;
 export const selectHasRole = (role: string) => (state: { auth: AuthState }) =>
-  state.auth.user?.roles.includes(role) || false;
+  state.auth.user?.role === role || false;
 export const selectIsEditor = (state: { auth: AuthState }) =>
-  state.auth.user?.roles.includes('ROLE_EDITOR') || state.auth.user?.roles.includes('ROLE_ADMIN') || false;
+  state.auth.user?.role === 'ROLE_EDITOR' || state.auth.user?.role === 'ROLE_ADMIN' || false;
 export const selectIsAdmin = (state: { auth: AuthState }) =>
-  state.auth.user?.roles.includes('ROLE_ADMIN') || false;
+  state.auth.user?.role === 'ROLE_ADMIN' || false;
+export const selectIsAuthor = (state: { auth: AuthState }) =>
+  state.auth.user?.role === 'ROLE_AUTOR' || false;
+export const selectIsReviewer = (state: { auth: AuthState }) =>
+  state.auth.user?.role === 'ROLE_REVISOR' || false;
