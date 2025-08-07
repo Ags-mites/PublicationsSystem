@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "cockroachdb"
+  url      = env("DATABASE_URL")
+}
+model Publication {
+  id              String           @id @default(uuid())
+  title           String
+  abstract        String
+  keywords        String[]
+  status          PublicationStatus
+  currentVersion  Int              @default(1)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  primaryAuthorId String
+  coAuthorIds     String[]
+  type            PublicationType
+  metadata        Json             @default("{}")
+  submittedAt     DateTime?
+  publishedAt     DateTime?
+  article         Article?
+  book            Book?
+  reviews         Review[]
+  author          Author           @relation("PrimaryAuthor", fields: [primaryAuthorId], references: [id])
+  coAuthors       Author[]         @relation("CoAuthors")
+  @@map("publications")
+}
+model Article {
+  id                     String      @id @default(uuid())
+  publicationId          String      @unique
+  targetJournal          String
+  section                String
+  bibliographicReferences String[]
+  figureCount            Int         @default(0)
+  tableCount             Int         @default(0)
+  publication            Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+  @@map("articles")
+}
+model Book {
+  id            String      @id @default(uuid())
+  publicationId String      @unique
+  isbn          String      @unique
+  pageCount     Int
+  edition       String
+  publication   Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+  chapters      Chapter[]
+  @@map("books")
+}
+model Chapter {
+  id           String @id @default(uuid())
+  bookId       String
+  chapterNumber Int
+  title        String
+  abstract     String
+  pageStart    Int
+  pageEnd      Int
+  book         Book   @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  @@unique([bookId, chapterNumber])
+  @@map("chapters")
+}
+model Author {
+  id                String        @id @default(uuid())
+  firstName         String
+  lastName          String
+  email             String        @unique
+  affiliation       String
+  orcid             String?       @unique
+  biography         String?
+  photoUrl          String?
+  isActive          Boolean       @default(true)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  primaryPublications Publication[] @relation("PrimaryAuthor")
+  coAuthoredPublications Publication[] @relation("CoAuthors")
+  reviews           Review[]
+  @@map("authors")
+}
+model Review {
+  id             String        @id @default(uuid())
+  publicationId  String
+  reviewerId     String
+  reviewStatus   ReviewStatus
+  comments       String
+  score          Int?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  publication    Publication   @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+  reviewer       Author        @relation(fields: [reviewerId], references: [id])
+  changeRequests ChangeRequest[]
+  @@map("reviews")
+}
+model ChangeRequest {
+  id          String         @id @default(uuid())
+  reviewId    String
+  section     String
+  severity    ChangeSeverity
+  description String
+  suggestion  String?
+  review      Review         @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  @@map("change_requests")
+}
+model OutboxEvent {
+  id            String       @id @default(uuid())
+  aggregateId   String
+  aggregateType String
+  eventType     String
+  payloadJson   Json
+  status        OutboxStatus
+  createdAt     DateTime     @default(now())
+  processedAt   DateTime?
+  retryCount    Int          @default(0)
+  @@index([status, createdAt])
+  @@map("outbox_events")
+}
+enum PublicationStatus {
+  DRAFT
+  IN_REVIEW
+  CHANGES_REQUESTED
+  APPROVED
+  PUBLISHED
+  WITHDRAWN
+}
+enum PublicationType {
+  ARTICLE
+  BOOK
+}
+enum ReviewStatus {
+  PENDING
+  IN_PROGRESS
+  RETURNED
+  ACCEPTED
+  REJECTED
+}
+enum OutboxStatus {
+  PENDING
+  SENT
+  FAILED
+}
+enum ChangeSeverity {
+  LOW
+  MEDIUM
+  HIGH
+}
