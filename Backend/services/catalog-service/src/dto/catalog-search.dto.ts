@@ -23,6 +23,16 @@ export class CatalogSearchDto {
   @IsString()
   category?: string;
 
+  @ApiPropertyOptional({ description: 'ISBN filter (exact match)' })
+  @IsOptional()
+  @IsString()
+  isbn?: string;
+
+  @ApiPropertyOptional({ description: 'DOI filter (exact match)' })
+  @IsOptional()
+  @IsString()
+  doi?: string;
+
   @ApiPropertyOptional({ description: 'Filter publications from this year onwards' })
   @IsOptional()
   @IsInt()

@@ -319,52 +319,15 @@ npm run test:e2e
 npm run test:cov
 ```
 
-## 📦 Docker
-
-```bash
-# Construir imagen
-docker build -t publications-service .
-
-# Ejecutar contenedor
-docker run -p 3002:3002 publications-service
-```
-
 ## 🚀 Despliegue
 
-### Con Docker Compose
+El servicio puede ser desplegado en cualquier plataforma que soporte Node.js:
 
-```yaml
-version: '3.8'
-services:
-  publications-service:
-    build: .
-    ports:
-      - "3002:3002"
-    environment:
-      - DATABASE_URL=postgresql://user:pass@db:26257/publications
-      - JWT_SECRET=your-secret
-    depends_on:
-      - db
-      - rabbitmq
-      - consul
-
-  db:
-    image: cockroachdb/cockroach:latest
-    command: start-single-node --insecure
-    ports:
-      - "26257:26257"
-
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-
-  consul:
-    image: consul:latest
-    ports:
-      - "8500:8500"
-```
+- **Heroku**: Deploy directo desde Git
+- **AWS**: ECS, Lambda, o EC2
+- **Google Cloud**: Cloud Run o Compute Engine
+- **Azure**: App Service o Container Instances
+- **DigitalOcean**: App Platform o Droplets
 
 ## 📈 Monitoreo
 

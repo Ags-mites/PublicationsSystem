@@ -5,7 +5,6 @@ import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import * as compression from 'compression';
 import { ValidationPipe, Logger } from '@nestjs/common';
-import { registerWithConsul, deregisterFromConsul } from './consul/consul.service';
 
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { BusinessExceptionFilter } from './common/filters/business-exception.filter';
@@ -97,10 +96,6 @@ async function bootstrap() {
     // Iniciar el servidor
     await app.listen(port);
     logger.log(`Publications Service is running on port ${port}`);
-
-    // Registrar con Consul
-    await registerWithConsul(configService, port, apiPrefix);
-    console.log('Service registered with Consul');
 
     // Manejo de señales de terminación
     process.on('SIGTERM', async () => {

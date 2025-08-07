@@ -28,17 +28,8 @@ import {
   SubscriptionDto,
 } from '../dto';
 
-// Mock auth guard - in real implementation, use proper JWT guard
-class AuthGuard {
-  canActivate(): boolean {
-    return true; // Placeholder
-  }
-}
-
 @ApiTags('Notification Subscriptions')
 @Controller('notifications/subscriptions')
-@UseGuards(AuthGuard)
-@ApiBearerAuth()
 export class SubscriptionsController {
   private readonly logger = new Logger(SubscriptionsController.name);
 

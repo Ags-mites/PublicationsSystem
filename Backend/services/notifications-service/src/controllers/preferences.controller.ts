@@ -20,17 +20,8 @@ import { Throttle } from '@nestjs/throttler';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdatePreferencesDto, PreferencesDto } from '../dto';
 
-// Mock auth guard - in real implementation, use proper JWT guard
-class AuthGuard {
-  canActivate(): boolean {
-    return true; // Placeholder
-  }
-}
-
 @ApiTags('Notification Preferences')
 @Controller('notifications/preferences')
-@UseGuards(AuthGuard)
-@ApiBearerAuth()
 export class PreferencesController {
   private readonly logger = new Logger(PreferencesController.name);
 

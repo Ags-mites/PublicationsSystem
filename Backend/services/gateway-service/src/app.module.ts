@@ -10,7 +10,7 @@ import { AuthMiddleware } from './auth/auth.middleware';
 import { RateLimitMiddleware } from './rate-limit/rate-limit.middleware';
 
 // Services
-import { ConsulService } from './consul/consul.service';
+// import { ConsulService } from './consul/consul.service';
 import { JwtService } from './auth/jwt.service';
 import { RateLimitService } from './rate-limit/rate-limit.service';
 import { CircuitBreakerService } from './circuit-breaker/circuit-breaker.service';
@@ -21,7 +21,7 @@ import { GatewayService } from './gateway.service';
 
 // Controllers
 import { ProxyController } from './proxy/proxy.controller';
-import { HealthController } from './health/health.controller';
+import { HealthModule } from './health/health.module';
 import { MonitoringController } from './monitoring/monitoring.controller';
 import { GatewayController } from './gateway.controller';
 
@@ -48,16 +48,18 @@ import { ErrorHandlingInterceptor } from './common/interceptors/error-handling.i
         }],
       }),
     }),
+
+    // Health module
+    HealthModule,
   ],
   controllers: [
-    HealthController,
     MonitoringController,
     GatewayController,
     ProxyController,
   ],
   providers: [
     // Core services
-    ConsulService,
+    // ConsulService,
     JwtService,
     RateLimitService,
     CircuitBreakerService,

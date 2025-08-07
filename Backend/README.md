@@ -11,14 +11,14 @@ Backend/
 │   ├── publications-service/  # Publications management (Port 3002)
 │   ├── catalog-service/       # Catalog management (Port 3003)
 │   ├── notifications-service/ # Notifications (Port 3004)
-│   └── gateway-service/       # API Gateway (Port 3000)
-├── consul-service/            # Service discovery (Port 8501)
-├── docker-compose.yml         # Infrastructure orchestration
+│   └── gateway-service/       # API Gateway (Port 8081)
+
+├── docker-compose.yml        # Consolidated infrastructure
 ├── package.json              # Root workspace configuration
 ├── tsconfig.json            # Base TypeScript configuration
 └── scripts/
-    ├── setup.sh             # Project setup script
-    └── dev-start.sh         # Development startup script
+    ├── regenerate-prisma.sh # Prisma regeneration script
+    └── init-databases.sh   # Database initialization script
 ```
 
 ## 🚀 Quick Start
@@ -28,6 +28,7 @@ Backend/
 - Node.js >= 18.0.0
 - pnpm >= 8.0.0
 - Docker and Docker Compose
+- Consul (Service Discovery)
 
 ### Installation
 
@@ -37,27 +38,59 @@ Backend/
    cd Backend
    ```
 
-2. **Run the setup script**
+2. **Install all dependencies**
    ```bash
-   pnpm run setup
+   pnpm run install:all
    ```
 
 3. **Start infrastructure services**
    ```bash
+   pnpm run dev:infra
+   ```
+
+4. **Initialize database schemas**
+   ```bash
+   pnpm run docker:init-db
+   ```
+
+5. **Start microservices individually**
+   ```bash
+   # Start each service in a separate terminal:
+   pnpm run dev:auth
+   pnpm run dev:publications
+   pnpm run dev:catalog
+   pnpm run dev:notifications
+   pnpm run dev:gateway
+   ```
+
+6. **Or start all with Docker**
+   ```bash
+   pnpm run docker:build
    pnpm run docker:up
    ```
 
-4. **Start all microservices**
-   ```bash
-   pnpm run dev
-   ```
+## 🔍 Service Discovery
+
+### Consul
+- **URL**: http://localhost:8500
+- **UI**: http://localhost:8500/ui
+- **API**: http://localhost:8500/v1
+- **Purpose**: Service discovery and health monitoring
+
+### Health Checks
+All services include automatic health checks via `@nestjs/terminus`:
+- **Auth Service**: http://localhost:3001/health
+- **Publications Service**: http://localhost:3002/health
+- **Catalog Service**: http://localhost:3003/health
+- **Notifications Service**: http://localhost:3004/health
+- **Gateway Service**: http://localhost:8080/health
 
 ## 🌐 Service Endpoints
 
 ### API Gateway (Main Entry Point)
-- **URL**: http://localhost:3000
-- **Documentation**: http://localhost:3000/api/docs
-- **Health Check**: http://localhost:3000/api/health
+- **URL**: http://localhost:8081
+- **Documentation**: http://localhost:8081/api/docs
+- **Health Check**: http://localhost:8081/api/health
 
 ### Individual Services
 
@@ -95,9 +128,41 @@ Backend/
 
 ## 🏗️ Infrastructure Services
 
+### CockroachDB (Consolidated Database)
+- **URL**: http://localhost:8080
+- **SQL Port**: 26257
+- **Database**: defaultdb with multiple schemas
+
+### RabbitMQ (Message Broker)
+- **URL**: http://localhost:15672
+- **AMQP Port**: 5672
+- **Credentials**: admin/admin123
+
 ### Consul (Service Discovery)
 - **URL**: http://localhost:8500
 - **API**: http://localhost:8500/v1/
+
+## 🔧 Available Scripts
+
+### Development Scripts
+- `pnpm run dev:infra` - Start infrastructure services (RabbitMQ, CockroachDB, Consul)
+- `pnpm run dev:auth` - Start auth service in development mode
+- `pnpm run dev:publications` - Start publications service in development mode
+- `pnpm run dev:catalog` - Start catalog service in development mode
+- `pnpm run dev:notifications` - Start notifications service in development mode
+- `pnpm run dev:gateway` - Start gateway service in development mode
+
+### Installation Scripts
+- `pnpm run install:all` - Install dependencies for all services (bash script)
+- `pnpm run prisma:regenerate` - Regenerate Prisma client for all services (bash script)
+- `pnpm run docker:init-db` - Initialize database schemas (bash script)
+
+### Docker Scripts
+- `pnpm run docker:up` - Start all services with Docker
+- `pnpm run docker:down` - Stop all Docker services
+- `pnpm run docker:build` - Build all Docker images
+- `pnpm run docker:logs` - View logs from all services
+- `pnpm run docker:init-db` - Initialize database schemas
 - **Features**: Service registration, health checks, configuration
 
 ### RabbitMQ (Message Broker)
@@ -214,12 +279,11 @@ curl http://localhost:8500/v1/catalog/services
    ```bash
    # Check if Consul is running
    curl http://localhost:8500/v1/status/leader
-   # Restart Consul container
-   docker-compose restart consul
+   # Restart Consul service manually
    ```
 
 3. **Service Not Registering**
-   - Check Consul logs: `docker logs consul`
+   - Check Consul logs manually
    - Verify network connectivity
    - Check service health endpoints
 
@@ -227,12 +291,13 @@ curl http://localhost:8500/v1/catalog/services
 
 ```bash
 # Check all running services
-docker-compose ps
+ps aux | grep node
 
-# View service logs
-docker-compose logs -f rabbitmq
-docker-compose logs -f cockroachdb
-docker-compose logs -f consul
+# View service logs (if using PM2 or similar)
+# Check service health
+curl http://localhost:3001/health
+curl http://localhost:3002/health
+```
 
 # Check Consul services
 curl http://localhost:8500/v1/catalog/services
@@ -271,7 +336,7 @@ curl http://localhost:3002/health
 3. **Message Queues**: Integrate RabbitMQ for async communication
 4. **Error Handling**: Implement circuit breakers and retry logic
 5. **Testing**: Add unit and integration tests
-6. **Deployment**: Containerize services with Docker
+6. **Deployment**: Deploy services to your preferred platform
 7. **Monitoring**: Add Prometheus metrics and Grafana dashboards
 
 ## 📄 License

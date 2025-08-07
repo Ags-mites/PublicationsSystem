@@ -37,13 +37,13 @@ export class EventPublisherService {
   private readonly exchangeName: string;
 
   constructor(private readonly configService: ConfigService) {
-    this.exchangeName = this.configService.get<string>('RABBITMQ_EXCHANGE', 'publication.events');
+    this.exchangeName = this.configService.get<string>('RABBITMQ_EXCHANGE', 'auth.events');
     this.initializeConnection();
   }
 
   private async initializeConnection() {
     try {
-      const rabbitmqUrl = this.configService.get<string>('RABBITMQ_URL', 'amqp://localhost:5672');
+      const rabbitmqUrl = this.configService.get<string>('RABBITMQ_URL', 'amqp://admin:admin123@localhost:5672');
       this.connection = await amqp.connect(rabbitmqUrl);
       this.channel = await this.connection.createChannel();
       

@@ -1,110 +1,121 @@
 # Catalog Service
 
-A high-performance catalog microservice for academic publications with advanced search capabilities, event-driven synchronization, and comprehensive public APIs.
+Microservicio de catálogo para publicaciones académicas con búsqueda avanzada y suscripción a eventos.
 
-## Features
+## Características
 
-- **Advanced Search**: Full-text search with faceting, filtering, and sorting
-- **Event-Driven**: Consumes publication events via RabbitMQ
-- **Public APIs**: No authentication required for public catalog access
-- **Performance**: Optimized with database indexes, caching, and rate limiting
-- **Analytics**: Search metrics and catalog statistics
-- **Health Monitoring**: Comprehensive health checks and metrics
+- ✅ Suscripción a eventos RabbitMQ (`publication.published`, `publication.withdrawn`, etc.)
+- ✅ Endpoints públicos sin autenticación
+- ✅ Paginación en consultas
+- ✅ Filtros avanzados: título, autor, palabras clave, ISBN, DOI, categorías
+- ✅ Esquema `cat_schema` en CockroachDB
+- ✅ Indexación para búsqueda rápida
+- ✅ Seguridad y CORS manejados por API Gateway y Auth Service
 
-## API Endpoints
+## Configuración de Base de Datos
 
-### Publications
-- `GET /api/v1/catalog/publications` - Search publications with pagination
-- `GET /api/v1/catalog/publications/:id` - Get publication by ID
-- `GET /api/v1/catalog/search` - Advanced search with facets
-- `GET /api/v1/catalog/categories` - Get all categories
+### CockroachDB
 
-### Authors
-- `GET /api/v1/catalog/authors` - Get authors with pagination
-- `GET /api/v1/catalog/authors/top` - Get top authors by publication count
-- `GET /api/v1/catalog/authors/:id` - Get author by ID
-- `GET /api/v1/catalog/authors/:id/publications` - Get author's publications
+El servicio utiliza **CockroachDB** como base de datos distribuida. CockroachDB es compatible con el protocolo PostgreSQL, por lo que usa el driver `cockroachdb://` en la URL de conexión.
 
-### Statistics & Health
-- `GET /api/v1/catalog/statistics` - Catalog metrics and statistics
-- `GET /api/v1/health` - Health check
-- `GET /api/v1/metrics` - Service metrics
+### Esquema cat_schema
 
-## Search Parameters
+El servicio utiliza el esquema `cat_schema` en CockroachDB. Para configurarlo:
 
-- `q` - Search query (searches title, abstract, keywords)
-- `type` - Publication type (ARTICLE, BOOK)
-- `author` - Author name filter
-- `category` - Category filter
-- `yearFrom` / `yearTo` - Date range filters
-- `page` / `limit` - Pagination (max 100 per page)
-- `sortBy` - Sort by relevance, date, or title
-- `sortOrder` - asc or desc
-
-## Event Consumption
-
-Listens for these RabbitMQ events:
-- `publication.published` - Index new publication
-- `publication.updated` - Update existing publication
-- `publication.withdrawn` - Mark publication as withdrawn
-- `author.created` - Add new author
-- `author.updated` - Update author information
-
-## Performance Features
-
-- **Database Indexes**: Optimized for search operations
-- **Response Caching**: TTL-based caching for frequent queries
-- **Rate Limiting**: 100 requests/minute per IP
-- **Query Optimization**: Efficient Prisma queries with aggregations
-- **View Tracking**: Track publication popularity for relevance scoring
-
-## Configuration
-
-Environment variables:
-- `PORT` - Service port (default: 3003)
-- `DATABASE_URL` - CockroachDB connection string
-- `RABBITMQ_URL` - RabbitMQ connection string
-- `CONSUL_URL` - Consul registry URL
-
-## Development
-
-```bash
-# Install dependencies
-npm install
-
-# Generate Prisma client
-npx prisma generate
-
-# Run migrations
-npx prisma migrate dev
-
-# Start development server
-npm run start:dev
+1. **Crear el esquema**:
+```sql
+-- Ejecutar el script de migración
+psql -h localhost -p 26257 -U catalog -d catalog_db -f prisma/migrate-schema.sql
 ```
 
-## Production
-
-```bash
-# Build the application
-npm run build
-
-# Start production server
-npm run start
+2. **Configurar variables de entorno**:
+```env
+DATABASE_URL=postgresql://catalog:catalog@localhost:26257/catalog_db?sslmode=disable&search_path=cat_schema
 ```
 
-## API Documentation
+3. **Ejecutar migraciones**:
+```bash
+npm run prisma:migrate
+npm run prisma:generate
+```
 
-Swagger documentation available at `/docs` when running in development mode.
+## Endpoints Públicos
 
-## Rate Limits
+### Búsqueda de Publicaciones
+- `GET /api/v1/catalog/publications` - Búsqueda con filtros
+- `GET /api/v1/catalog/publications/:id` - Obtener por ID
+- `GET /api/v1/catalog/search` - Búsqueda avanzada (alias)
 
-- General endpoints: 30-60 requests/minute
-- Search endpoints: 30 requests/minute
-- Statistics endpoints: 5-10 requests/minute
+### Filtros Disponibles
+- `q` - Búsqueda en título, abstract y palabras clave
+- `type` - Tipo de publicación (ARTICLE, BOOK)
+- `author` - Nombre del autor
+- `category` - Categoría
+- `isbn` - ISBN (coincidencia exacta)
+- `doi` - DOI (coincidencia exacta)
+- `yearFrom/yearTo` - Rango de años
+- `page/limit` - Paginación
 
-## Caching Strategy
+### Estadísticas
+- `GET /api/v1/catalog/categories` - Categorías disponibles
+- `GET /api/v1/catalog/statistics` - Estadísticas del catálogo
 
-- Publication details: 10 minutes
-- Search results: 5 minutes
-- Categories: 1 hour
-- Statistics: 30 minutes
+## Eventos RabbitMQ
+
+El servicio consume los siguientes eventos:
+- `publication.published` - Nueva publicación
+- `publication.withdrawn` - Publicación retirada
+- `publication.updated` - Publicación actualizada
+- `author.created` - Nuevo autor
+- `author.updated` - Autor actualizado
+
+## Instalación y Ejecución
+
+```bash
+# 1. Configurar entorno
+cp env.example .env
+pnpm install
+
+# 2. Configurar base de datos
+pnpm run prisma:generate
+pnpm run prisma:migrate
+
+# 3. Ejecutar microservicio
+pnpm run start:dev
+```
+
+### Comandos útiles
+```bash
+# Regenerar Prisma client
+pnpm run prisma:generate
+
+# Ejecutar migraciones
+pnpm run prisma:migrate
+```
+
+## Accesos
+
+- **Microservicio**: http://localhost:3003/api/v1
+- **Documentación Swagger**: http://localhost:3003/docs
+- **CockroachDB Web UI**: http://localhost:8080
+- **RabbitMQ Management**: http://localhost:15672 (admin/admin) - Servicio global del backend
+
+## Variables de Entorno
+
+El microservicio requiere las siguientes variables mínimas:
+
+```env
+# Configuración del microservicio
+NODE_ENV=development
+PORT=3003
+API_PREFIX=api/v1
+SERVICE_NAME=catalog-service
+
+# Base de datos CockroachDB
+DATABASE_URL=postgresql://catalog:catalog@localhost:26257/catalog_db?sslmode=disable&search_path=cat_schema
+
+# RabbitMQ global del backend
+RABBITMQ_URL=amqp://admin:admin@localhost:5672
+```
+
+Ver archivo `env.example` para el formato completo.

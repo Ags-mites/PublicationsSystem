@@ -1,12 +1,24 @@
+version: '3.8'
 
 services:
-  # RabbitMQ Message Broker
+  cockroachdb:
+    image: cockroachdb/cockroach:latest
+    container_name: cockroachdb
+    command: start-single-node --insecure --advertise-addr=cockroachdb
+    ports:
+      - "26257:26257"
+      - "8080:8080"
+    volumes:
+      - cockroachdb_data:/cockroach/cockroach-data
+    networks:
+      - microservices-network
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
-      - "5672:5672"     # AMQP port
-      - "15672:15672"   # Management UI
+      - "5672:5672"
+      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin123
@@ -15,83 +27,104 @@ services:
     networks:
       - microservices-network
 
-  # CockroachDB Database for Auth Service
-  cockroachdb-auth:
-    image: cockroachdb/cockroach:latest
-    container_name: cockroachdb-auth
-    command: start-single-node --insecure
-    ports:
-      - "26257:26257"   # SQL port
-      - "8080:8080"     # Admin UI
-    volumes:
-      - cockroachdb_auth_data:/cockroach/cockroach-data
-    environment:
-      - COCKROACH_DATABASE=auth_db
-    networks:
-      - microservices-network
-
-  # CockroachDB Database for Publications Service
-  cockroachdb-publications:
-    image: cockroachdb/cockroach:latest
-    container_name: cockroachdb-publications
-    command: start-single-node --insecure
-    ports:
-      - "26258:26257"   # SQL port
-      - "8081:8080"     # Admin UI
-    volumes:
-      - cockroachdb_publications_data:/cockroach/cockroach-data
-    environment:
-      - COCKROACH_DATABASE=publications_db
-    networks:
-      - microservices-network
-
-  # CockroachDB Database for Catalog Service
-  cockroachdb-catalog:
-    image: cockroachdb/cockroach:latest
-    container_name: cockroachdb-catalog
-    command: start-single-node --insecure
-    ports:
-      - "26259:26257"   # SQL port
-      - "8082:8080"     # Admin UI
-    volumes:
-      - cockroachdb_catalog_data:/cockroach/cockroach-data
-    environment:
-      - COCKROACH_DATABASE=catalog_db
-    networks:
-      - microservices-network
-
-  # CockroachDB Database for Notifications Service
-  cockroachdb-notifications:
-    image: cockroachdb/cockroach:latest
-    container_name: cockroachdb-notifications
-    command: start-single-node --insecure
-    ports:
-      - "26260:26257"   # SQL port
-      - "8083:8080"     # Admin UI
-    volumes:
-      - cockroachdb_notifications_data:/cockroach/cockroach-data
-    environment:
-      - COCKROACH_DATABASE=notifications_db
-    networks:
-      - microservices-network
-
-  # Consul Service Discovery
   consul:
     image: hashicorp/consul:latest
     container_name: consul
     ports:
-      - "8500:8500"     # HTTP API
-      - "8600:8600/udp" # DNS
-    command: agent -server -ui -node=server-1 -bootstrap-expect=1 -client=0.0.0.0
+      - "8500:8500"
+      - "8600:8600/udp"
+    command: agent -server -ui -node=consul-server -bootstrap-expect=1 -client=0.0.0.0
+    volumes:
+      - consul_data:/consul/data
+    networks:
+      - microservices-network
+
+  auth-service:
+    build:
+      context: ./services/auth-service
+      target: production
+    container_name: auth-service
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./services/auth-service/.env
+    depends_on:
+      - cockroachdb
+      - rabbitmq
+      - consul
+    networks:
+      - microservices-network
+
+  publications-service:
+    build:
+      context: ./services/publications-service
+      target: production
+    container_name: publications-service
+    ports:
+      - "3002:3002"
+    env_file:
+      - ./services/publications-service/.env
+    depends_on:
+      - cockroachdb
+      - rabbitmq
+      - consul
+    networks:
+      - microservices-network
+
+  catalog-service:
+    build:
+      context: ./services/catalog-service
+      target: production
+    container_name: catalog-service
+    ports:
+      - "3003:3003"
+    env_file:
+      - ./services/catalog-service/.env
+    depends_on:
+      - cockroachdb
+      - rabbitmq
+      - consul
+    networks:
+      - microservices-network
+
+  notifications-service:
+    build:
+      context: ./services/notifications-service
+      target: production
+    container_name: notifications-service
+    ports:
+      - "3004:3004"
+    env_file:
+      - ./services/notifications-service/.env
+    depends_on:
+      - cockroachdb
+      - rabbitmq
+      - consul
+    networks:
+      - microservices-network
+
+  gateway-service:
+    build:
+      context: ./services/gateway-service
+      target: production
+    container_name: gateway-service
+    ports:
+      - "8081:8080"
+    env_file:
+      - ./services/gateway-service/.env
+    depends_on:
+      - auth-service
+      - publications-service
+      - catalog-service
+      - notifications-service
+      - consul
     networks:
       - microservices-network
 
 volumes:
+  cockroachdb_data:
   rabbitmq_data:
-  cockroachdb_auth_data:
-  cockroachdb_publications_data:
-  cockroachdb_catalog_data:
-  cockroachdb_notifications_data:
+  consul_data:
 
 networks:
   microservices-network:

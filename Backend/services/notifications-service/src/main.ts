@@ -9,6 +9,7 @@ import * as compression from 'compression';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
+import { AuthValidationInterceptor } from './interceptors/auth-validation.interceptor';
 
 class SocketIOAdapter extends IoAdapter {
   createIOServer(port: number, options?: any): any {
@@ -39,32 +40,7 @@ async function setupSwagger(app: any) {
   SwaggerModule.setup('docs', app, document);
 }
 
-async function registerWithConsul(configService: ConfigService, port: number, apiPrefix: string): Promise<void> {
-  try {
-    const consul = require('consul');
-    
-    const consulClient = new consul();
-    await consulClient.agent.service.register({
-      name: 'notifications-service',
-      id: `notifications-service-${process.pid}`,
-      address: 'localhost',
-      port,
-      tags: ['notifications', 'messaging', 'websocket', 'email'],
-      check: {
-        name: 'notifications-service-health-check',
-        http: `http://localhost:${port}/${apiPrefix}/health`,
-        interval: '10s',
-        timeout: '5s',
-        deregistercriticalserviceafter: '30s',
-      },
-    });
 
-    console.log(`Notifications service registered with Consul on port ${port}`);
-
-  } catch (error) {
-    console.error('Consul registration failed:', error);
-  }
-}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -125,9 +101,6 @@ async function bootstrap() {
   
   // Start HTTP server
   await app.listen(port);
-  
-  // Register with Consul
-  await registerWithConsul(configService, port, apiPrefix);
   
   console.log(`🚀 Notifications Service running on port ${port}`);
   console.log(`📧 API: http://localhost:${port}/${apiPrefix}`);

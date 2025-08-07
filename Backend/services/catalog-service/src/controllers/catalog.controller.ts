@@ -48,6 +48,8 @@ export class CatalogController {
   @ApiQuery({ name: 'type', required: false, enum: ['ARTICLE', 'BOOK'], description: 'Publication type' })
   @ApiQuery({ name: 'author', required: false, description: 'Author name filter' })
   @ApiQuery({ name: 'category', required: false, description: 'Category filter' })
+  @ApiQuery({ name: 'isbn', required: false, description: 'ISBN filter (exact match)' })
+  @ApiQuery({ name: 'doi', required: false, description: 'DOI filter (exact match)' })
   @ApiQuery({ name: 'yearFrom', required: false, type: Number, description: 'From year' })
   @ApiQuery({ name: 'yearTo', required: false, type: Number, description: 'To year' })
   @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })

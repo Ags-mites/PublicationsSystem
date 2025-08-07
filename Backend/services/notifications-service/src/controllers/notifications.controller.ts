@@ -29,17 +29,8 @@ import {
 } from '../dto';
 import { NotificationStatus } from '@prisma/client';
 
-// Mock auth guard - in real implementation, use proper JWT guard
-class AuthGuard {
-  canActivate(): boolean {
-    return true; // Placeholder
-  }
-}
-
 @ApiTags('Notifications')
 @Controller('notifications')
-@UseGuards(AuthGuard)
-@ApiBearerAuth()
 export class NotificationsController {
   private readonly logger = new Logger(NotificationsController.name);
 

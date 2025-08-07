@@ -7,9 +7,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// CockroachDB es compatible con PostgreSQL pero tiene características específicas
+// como mejor distribución de datos y consistencia fuerte
+
 enum CatalogStatus {
   ACTIVE
   WITHDRAWN
+  
+  
 }
 
 model CatalogPublication {
@@ -33,6 +38,7 @@ model CatalogPublication {
   indexedAt       DateTime      @default(now()) @map("indexed_at")
   
   @@map("catalog_publications")
+  
   @@index([title])
   @@index([keywords])
   @@index([category])
@@ -54,6 +60,7 @@ model CatalogAuthor {
   lastPublishedAt   DateTime @map("last_published_at")
   
   @@map("catalog_authors")
+  
   @@index([fullName])
   @@index([affiliation])
   @@index([publicationCount])
@@ -68,6 +75,7 @@ model SearchStatistics {
   timestamp       DateTime @default(now())
   
   @@map("search_statistics")
+  
   @@index([timestamp])
   @@index([query])
 }

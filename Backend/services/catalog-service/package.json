@@ -23,6 +23,7 @@
     "@nestjs/microservices": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.0.0",
+    "@nestjs/terminus": "^10.3.0",
     "@nestjs/throttler": "^4.0.0",
     "@prisma/client": "^6.13.0",
     "amqp-connection-manager": "^4.1.14",

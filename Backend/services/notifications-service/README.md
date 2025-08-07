@@ -1,216 +1,321 @@
 # Notifications Service
 
-A comprehensive multi-channel notification system with real-time capabilities, reliable delivery, and user preference management for the Academic Publications System.
+Microservicio de notificaciones para el sistema de publicaciones académicas. Proporciona capacidades de notificación multi-canal (email, WebSocket, push) con procesamiento asíncrono de eventos.
 
-## Features
+## Características
 
-- **Multi-Channel Delivery**: Email, WebSocket, and Push notification support
-- **Real-Time Notifications**: WebSocket gateway for instant delivery
-- **Event-Driven Architecture**: Consumes RabbitMQ events from other services
-- **Reliable Delivery**: Retry mechanisms, dead letter queues, and delivery tracking
-- **User Preferences**: Comprehensive notification preferences and subscriptions
-- **Template Engine**: Handlebars-based email templates with multi-format support
-- **Queue Management**: Bull-based job processing with Redis
-- **Performance Monitoring**: Comprehensive metrics and health checks
+- **Notificaciones Multi-canal**: Email, WebSocket, y notificaciones push
+- **Procesamiento Asíncrono**: Colas de trabajo con Bull
+- **Eventos en Tiempo Real**: WebSocket para notificaciones instantáneas
+- **Templates Dinámicos**: Sistema de templates con Handlebars
+- **Preferencias de Usuario**: Configuración personalizada por usuario
+- **Métricas y Logging**: Monitoreo completo del servicio
+- **Eventos RabbitMQ**: Publicación y consumo de eventos del sistema
 
-## Architecture
+## Tecnologías
 
-### Notification Channels
-- **Email**: SMTP-based with HTML/text templates
-- **WebSocket**: Real-time browser notifications via Socket.IO
-- **Push**: Mobile push notifications (placeholder for future implementation)
+- **Framework**: NestJS
+- **Base de Datos**: CockroachDB con Prisma ORM
+- **Mensajería**: RabbitMQ para eventos
+- **Colas**: Bull para procesamiento asíncrono
+- **WebSockets**: Socket.IO para tiempo real
+- **Email**: Nodemailer con templates Handlebars
 
-### Event Processing Flow
-1. Consume events from RabbitMQ
-2. Determine target users and their preferences
-3. Generate notifications for enabled channels
-4. Queue delivery jobs with priority and retry logic
-5. Process delivery through appropriate channels
-6. Track delivery status and handle failures
+## Requisitos
 
-## API Endpoints
+- Node.js 18+
+- Docker y Docker Compose
+- CockroachDB CLI (opcional, para inicialización manual)
 
-### Notifications Management
-- `GET /api/v1/notifications` - Get user notifications (paginated)
-- `GET /api/v1/notifications/unread-count` - Get unread notification count
-- `PUT /api/v1/notifications/:id/mark-read` - Mark notification as read/unread
-- `PUT /api/v1/notifications/mark-all-read` - Mark all as read
-- `DELETE /api/v1/notifications/:id` - Delete notification
-- `DELETE /api/v1/notifications/clear-all` - Clear all read notifications
-- `GET /api/v1/notifications/stats` - Get notification statistics
+## Configuración
 
-### User Preferences
-- `GET /api/v1/notifications/preferences` - Get user preferences
-- `PUT /api/v1/notifications/preferences` - Update preferences
-- `GET /api/v1/notifications/preferences/defaults` - Get default preferences
+### 1. Variables de Entorno
 
-### Event Subscriptions
-- `GET /api/v1/notifications/subscriptions` - Get user subscriptions
-- `POST /api/v1/notifications/subscriptions` - Create subscription
-- `PUT /api/v1/notifications/subscriptions/:id` - Update subscription
-- `DELETE /api/v1/notifications/subscriptions/:id` - Delete subscription
-- `GET /api/v1/notifications/subscriptions/event-types` - Get available event types
-- `POST /api/v1/notifications/subscriptions/bulk-create` - Create multiple subscriptions
+Copia el archivo de ejemplo y configura las variables:
 
-### Health & Monitoring
-- `GET /api/v1/health` - Service health check
-- `GET /api/v1/metrics` - Service metrics and statistics
+```bash
+cp env.example .env
+```
 
-## WebSocket Events
+Edita `.env` con tus configuraciones:
 
-### Client → Server
-- `subscribe` - Subscribe to user notifications
-- `unsubscribe` - Unsubscribe from notifications
-- `ping` - Ping/pong heartbeat
-- `markAsRead` - Mark notification as read
-
-### Server → Client
-- `notification` - New notification delivery
-- `notificationRead` - Notification marked as read
-- `subscribed` - Subscription confirmation
-- `unsubscribed` - Unsubscription confirmation
-- `error` - Error messages
-
-## Event Consumption
-
-Listens for these RabbitMQ events:
-- `user.registered` - Welcome notifications for new users
-- `user.login` - Login alert notifications
-- `publication.submitted` - Submission confirmations
-- `publication.approved` - Approval notifications
-- `publication.published` - Publication announcements
-- `publication.review.requested` - Review request notifications
-- `publication.review.completed` - Review completion notifications
-
-## Configuration
-
-### Environment Variables
 ```env
 # Application
-NODE_ENV=development
 PORT=3004
 API_PREFIX=api/v1
+NODE_ENV=development
 FRONTEND_URL=http://localhost:3000
 
 # Database
-DATABASE_URL=postgresql://notifications:pass@localhost:5432/notifications_db
-
-# Email SMTP
-SMTP_HOST=localhost
-SMTP_PORT=587
-SMTP_USER=user
-SMTP_PASS=password
-EMAIL_FROM=noreply@academic-system.com
+DATABASE_URL=postgresql://root@localhost:26257/notifications_db?sslmode=disable
 
 # RabbitMQ
-RABBITMQ_URL=amqp://localhost:5672
+RABBITMQ_URL=amqp://admin:admin123@localhost:5672
 RABBITMQ_QUEUE=notifications_queue
+RABBITMQ_EXCHANGE=system_events
 
-# Redis (Bull Queue)
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_DB=0
-
-# Consul
-CONSUL_URL=http://localhost:8500
+# Email (configure as needed)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
 ```
 
-## Notification Templates
-
-Pre-built templates for all event types:
-- User registration welcome emails
-- Login alerts
-- Publication lifecycle notifications
-- Review process notifications
-- Custom template support with Handlebars
-
-## Reliability Features
-
-### Delivery Guarantees
-- **Email**: 3 retry attempts with exponential backoff
-- **WebSocket**: 1 retry with immediate fallback
-- **Push**: 2 retry attempts
-
-### Failure Handling
-- Dead letter queues for persistent failures
-- Delivery status tracking and logging
-- Automatic retry with configurable backoff
-- Failed notification reporting
-
-### User Experience
-- Quiet hours support (no notifications during specified times)
-- Digest emails for batched notifications
-- Real-time delivery status updates
-- Preference-based channel selection
-
-## Development
+### 2. Instalar Dependencias
 
 ```bash
-# Install dependencies
-npm install
-
-# Setup environment
-cp .env.example .env
-
-# Generate Prisma client
-npx prisma generate
-
-# Run database migrations
-npx prisma migrate dev
-
-# Start development server
-npm run start:dev
-
-# Start with debug logging
-npm run start:debug
+pnpm install
 ```
 
-## Production
+### 3. Verificar Servicios de Infraestructura
+
+Asegúrate de que los siguientes servicios estén ejecutándose:
+- **CockroachDB**: Base de datos en puerto 26260
+- **RabbitMQ**: Mensajería en puerto 5672 (Management UI en 15672)
+
+### 4. Inicializar Base de Datos
 
 ```bash
-# Build the application
-npm run build
+pnpm run init:db
+pnpm run prisma:generate
+pnpm run prisma:migrate
+```
 
-# Start production server
-npm run start
+### 5. Ejecutar el Servicio
 
-# Health check
+```bash
+# Desarrollo
+pnpm run start:dev
+
+# Producción
+pnpm run build
+pnpm start
+```
+
+## Estructura del Proyecto
+
+```
+src/
+├── config/           # Configuraciones
+├── controllers/      # Controladores HTTP
+├── dto/             # Data Transfer Objects
+├── events/          # Consumidores de eventos
+├── filters/         # Filtros de excepción
+├── gateways/        # WebSocket gateways
+├── interceptors/    # Interceptores
+├── interfaces/      # Interfaces TypeScript
+├── prisma/          # Configuración de Prisma
+├── queues/          # Procesadores de colas
+├── services/        # Lógica de negocio
+└── templates/       # Templates de email
+```
+
+## API Endpoints
+
+> **Nota de Arquitectura**: Este microservicio no maneja autenticación directamente. El API Gateway se encarga de validar tokens y pasar el `userId` validado en los headers o query params.
+
+### Notificaciones
+- `GET /api/v1/notifications?userId={userId}` - Listar notificaciones del usuario
+- `GET /api/v1/notifications/unread-count?userId={userId}` - Contar notificaciones no leídas
+- `PUT /api/v1/notifications/:id/read?userId={userId}` - Marcar como leída
+- `PUT /api/v1/notifications/mark-all-read?userId={userId}` - Marcar todas como leídas
+- `DELETE /api/v1/notifications/:id?userId={userId}` - Eliminar notificación
+- `DELETE /api/v1/notifications/clear-all?userId={userId}` - Limpiar todas las leídas
+
+### Preferencias
+- `GET /api/v1/preferences?userId={userId}` - Obtener preferencias del usuario
+- `PUT /api/v1/preferences?userId={userId}` - Actualizar preferencias del usuario
+
+### Subscripciones
+- `GET /api/v1/subscriptions?userId={userId}` - Listar subscripciones del usuario
+- `POST /api/v1/subscriptions?userId={userId}` - Crear subscripción
+- `DELETE /api/v1/subscriptions/:id?userId={userId}` - Eliminar subscripción
+
+### Health Check
+- `GET /api/v1/health` - Estado del servicio
+
+### Admin Endpoints (Requieren Autenticación)
+- `GET /api/v1/admin/notifications/stats` - Estadísticas de notificaciones (requiere `admin:notifications:read`)
+- `DELETE /api/v1/admin/notifications/bulk` - Eliminar notificaciones en lote (requiere `admin:notifications:delete`)
+- `POST /api/v1/admin/notifications/send-test` - Enviar notificación de prueba (requiere `admin:notifications:send`)
+
+## Eventos RabbitMQ
+
+El servicio publica y consume los siguientes eventos:
+
+### Eventos Publicados
+- `user.registered` - Usuario registrado
+- `user.login` - Usuario conectado
+- `publication.submitted` - Publicación enviada
+- `publication.approved` - Publicación aprobada
+- `publication.published` - Publicación publicada
+- `publication.review.requested` - Revisión solicitada
+- `publication.review.completed` - Revisión completada
+
+### Uso del EventPublisherService
+
+```typescript
+import { EventPublisherService } from './services/event-publisher.service';
+
+@Injectable()
+export class YourService {
+  constructor(private eventPublisher: EventPublisherService) {}
+
+  async someMethod() {
+    await this.eventPublisher.publishUserRegistered({
+      userId: 'user-123',
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com',
+      registeredAt: new Date().toISOString(),
+    });
+  }
+}
+```
+
+## WebSocket
+
+El servicio expone WebSocket en `/notifications` para notificaciones en tiempo real.
+
+### Conexión
+```javascript
+const socket = io('http://localhost:3004/notifications');
+
+socket.on('notification', (data) => {
+  console.log('Nueva notificación:', data);
+});
+```
+
+## Arquitectura de Autenticación
+
+Este microservicio está diseñado para funcionar en una arquitectura de microservicios donde la autenticación se maneja de forma centralizada. El flujo es:
+
+1. **API Gateway** recibe la petición con el token JWT
+2. **API Gateway** redirige la petición al microservicio correspondiente
+3. **Microservicio de Autenticación** valida el token y retorna el `userId` si es válido
+4. **Microservicio de Notificaciones** recibe la petición con el `userId` ya validado
+5. **Microservicio** procesa la petición sin necesidad de validar tokens
+
+### Validación Opcional de Autenticación
+
+El microservicio de notificaciones incluye un `AuthClientService` que permite:
+
+- **Validación de tokens**: Cuando se necesita verificar autenticación
+- **Verificación de permisos**: Para acciones que requieren permisos específicos
+- **Consulta de información de usuario**: Para obtener datos del usuario autenticado
+
+### Ventajas de esta Arquitectura:
+- **Separación de responsabilidades**: Cada microservicio se enfoca en su dominio
+- **Centralización de autenticación**: Solo el microservicio de auth valida tokens
+- **Flexibilidad**: El microservicio puede validar cuando sea necesario
+- **Simplicidad**: Los microservicios de negocio no manejan autenticación por defecto
+- **Escalabilidad**: Fácil de escalar independientemente
+
+### Headers Esperados:
+El microservicio de autenticación debería pasar el `userId` en uno de estos formatos:
+- Query parameter: `?userId=123`
+- Header: `X-User-ID: 123`
+- Context (si usas NestJS microservices)
+
+### Validación de Tokens:
+Cuando se necesita validar un token, el microservicio puede usar:
+- Header: `Authorization: Bearer <token>`
+- Header: `X-Auth-Token: <token>`
+- Query: `?token=<token>`
+
+## Monitoreo
+
+### Health Check
+```bash
 curl http://localhost:3004/api/v1/health
 ```
 
-## Dependencies
+### RabbitMQ Management
+- URL: http://localhost:15672
+- Usuario: admin
+- Contraseña: admin123
 
-### Core Services
-- **Database**: CockroachDB with Prisma ORM
-- **Message Queue**: RabbitMQ for event consumption
-- **Cache/Queue**: Redis for Bull job processing
-- **Email**: Nodemailer with SMTP transport
-- **WebSocket**: Socket.IO for real-time delivery
+### CockroachDB Admin
+- URL: http://localhost:8081
 
-### External Services
-- **Service Discovery**: Consul for registration
-- **Monitoring**: Built-in metrics and health checks
+## Desarrollo
 
-## Performance Considerations
+### Scripts Disponibles
 
-- **Queue Processing**: Parallel job processing with priority queues
-- **Database Optimization**: Indexed queries for fast lookups
-- **Memory Management**: Efficient WebSocket connection handling
-- **Rate Limiting**: Throttled API endpoints to prevent abuse
-- **Template Caching**: Compiled template caching for performance
+```bash
+pnpm run start:dev      # Desarrollo con hot reload
+pnpm run build          # Compilar para producción
+pnpm run init:db        # Inicializar base de datos
+pnpm run prisma:generate # Generar cliente Prisma
+pnpm run prisma:migrate # Ejecutar migraciones
+pnpm run prisma:seed    # Poblar datos de prueba
+```
 
-## Monitoring & Observability
+### Estructura de Base de Datos
 
-- Real-time connection counts and user statistics
-- Delivery success/failure rates and timing metrics
-- Queue depth and processing time monitoring
-- Email delivery tracking and bounce handling
-- Comprehensive logging with correlation IDs
+El servicio utiliza las siguientes tablas principales:
 
-## Security Features
+- `notifications` - Notificaciones del sistema
+- `notification_preferences` - Preferencias de usuario
+- `notification_subscriptions` - Subscripciones a eventos
+- `notification_templates` - Templates de notificación
+- `notification_queue` - Cola de procesamiento
+- `delivery_logs` - Logs de entrega
 
-- Input validation and sanitization
-- CORS configuration for WebSocket connections
-- Rate limiting on API endpoints
-- Secure email template rendering
-- Environment-based configuration
+## Troubleshooting
+
+### Problemas Comunes
+
+1. **Error de conexión a CockroachDB**
+   - Verificar que la base de datos esté ejecutándose en puerto 26260
+   - Verificar la configuración de conexión en `.env`
+
+2. **Error de conexión a RabbitMQ**
+   - Verificar que RabbitMQ esté ejecutándose en puerto 5672
+   - Verificar la configuración de conexión en `.env`
+
+3. **Error de migración de Prisma**
+   - Ejecutar: `npm run prisma:generate`
+   - Verificar conexión a la base de datos
+
+4. **WebSocket no funciona**
+   - Verificar configuración de CORS en `.env`
+   - Verificar que el puerto esté disponible
+
+## Arquitectura del Sistema
+
+### Flujo de Autenticación Correcto:
+
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────────┐
+│   API Gateway   │───▶│ Auth Service     │───▶│ Notifications      │
+│                 │    │                  │    │ Service             │
+│ - Entry point   │    │ - Validates JWT  │    │ - No auth needed   │
+│ - Routes to MS  │    │ - Returns userId │    │ - Receives userId   │
+└─────────────────┘    └──────────────────┘    └─────────────────────┘
+         │                       │                       │
+         │                       │                       │
+         └───────────────────────┼───────────────────────┘
+                                 │
+                    ┌─────────────┴─────────────┐
+                    │     RabbitMQ Events      │
+                    │  - user.registered       │
+                    │  - user.login           │
+                    │  - publication.*         │
+                    └───────────────────────────┘
+```
+
+### Responsabilidades por Servicio:
+
+- **API Gateway**: Punto de entrada, routing, rate limiting
+- **Auth Service**: Validación de JWT, gestión de usuarios
+- **Notifications Service**: Gestión de notificaciones, eventos
+- **RabbitMQ**: Mensajería entre servicios
+
+## Contribución
+
+1. Fork el proyecto
+2. Crear una rama para tu feature
+3. Commit tus cambios
+4. Push a la rama
+5. Crear un Pull Request

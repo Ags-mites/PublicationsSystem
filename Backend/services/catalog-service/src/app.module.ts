@@ -4,6 +4,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { Reflector } from '@nestjs/core';
+import * as Joi from 'joi';
 
 import { PrismaModule } from './prisma/prisma.module';
 import { EventsModule } from './events/events.module';
@@ -16,7 +17,7 @@ import { CatalogService } from './services/catalog.service';
 import { CatalogSearchService } from './services/catalog-search.service';
 import { CatalogAuthorService } from './services/catalog-author.service';
 import { MetricsService } from './services/metrics.service';
-import { ConsulService } from './consul/consul.service';
+// import { ConsulService } from './common/consul.service';
 
 import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
@@ -26,6 +27,13 @@ import rabbitmqConfig from './config/rabbitmq.config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      validationSchema: Joi.object({
+        NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
+        PORT: Joi.number().default(3001),
+        API_PREFIX: Joi.string().default('api/v1'),
+        DATABASE_URL: Joi.string().required(),
+        SERVICE_NAME: Joi.string().default('catalog-service'),
+      }),
       load: [appConfig, databaseConfig, rabbitmqConfig],
       envFilePath: ['.env.local', '.env'],
     }),
@@ -64,7 +72,7 @@ import rabbitmqConfig from './config/rabbitmq.config';
     CatalogAuthorService,
     CatalogSearchService,
     MetricsService,
-    ConsulService,
+    // ConsulService,
   ],
 })
 export class AppModule {}

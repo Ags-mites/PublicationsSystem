@@ -3,14 +3,12 @@
   "version": "1.0.0",
   "description": "Academic microservices project for publication management",
   "scripts": {
-    "setup": "chmod +x scripts/setup.sh && ./scripts/setup.sh",
-    "dev": "chmod +x scripts/dev-start.sh && ./scripts/dev-start.sh",
-    "dev:simple": "chmod +x scripts/start-dev-simple.sh && ./scripts/start-dev-simple.sh",
-    "prisma:regenerate": "chmod +x scripts/regenerate-prisma.sh && ./scripts/regenerate-prisma.sh",
-    "init:db": "chmod +x scripts/init-databases.sh && ./scripts/init-databases.sh",
-    "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down",
-    "install:all": "pnpm install && cd services/auth-service && pnpm install && cd ../publications-service && pnpm install && cd ../catalog-service && pnpm install && cd ../notifications-service && pnpm install && cd ../gateway-service && pnpm install && cd ../../consul-service && pnpm install"
+    "infra": "docker-compose up -d rabbitmq cockroachdb consul",
+    "dev": "./scripts/dev-all.sh",
+    "stop": "./scripts/stop-all.sh",
+    "migrate": "./scripts/deploy-migrations.sh",
+    "db:init": "./scripts/init-databases.sh",
+    "db:create": "./scripts/create-databases.sh"
   },
   "workspaces": [
     "services/*",

@@ -1,7 +1,7 @@
 import { registerAs } from '@nestjs/config';
 
 export default registerAs('rabbitmq', () => ({
-  url: process.env.RABBITMQ_URL || 'amqp://localhost:5672',
+  url: process.env.RABBITMQ_URL || 'amqp://admin:admin123@localhost:5672',
   queue: process.env.RABBITMQ_QUEUE || 'notifications_queue',
   exchange: process.env.RABBITMQ_EXCHANGE || 'system_events',
   routingKeys: {

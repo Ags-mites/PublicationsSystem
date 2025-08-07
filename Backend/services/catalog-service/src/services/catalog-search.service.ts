@@ -20,7 +20,7 @@ export class CatalogSearchService {
 
   async searchPublications(searchDto: CatalogSearchDto): Promise<CatalogSearchResponseDto> {
     const startTime = Date.now();
-    const { page = 1, limit = 20, q, type, author, category, yearFrom, yearTo, sortBy, sortOrder } = searchDto;
+    const { page = 1, limit = 20, q, type, author, category, isbn, doi, yearFrom, yearTo, sortBy, sortOrder } = searchDto;
     
     try {
       const whereClause: any = {
@@ -49,6 +49,14 @@ export class CatalogSearchService {
 
       if (category) {
         whereClause.category = { contains: category, mode: 'insensitive' };
+      }
+
+      if (isbn) {
+        whereClause.isbn = isbn;
+      }
+
+      if (doi) {
+        whereClause.doi = doi;
       }
 
       if (yearFrom || yearTo) {

@@ -23,7 +23,22 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Authentication microservice built with [NestJS](https://github.com/nestjs/nest) framework.
+
+## Features
+
+- User authentication and authorization
+- JWT token management
+- Role-based access control
+- Event publishing via RabbitMQ
+- CockroachDB integration
+- RESTful API with Swagger documentation
+
+## Prerequisites
+
+- Node.js (v18 or higher)
+- pnpm
+- CockroachDB running externally on port 26257
 
 ## Project setup
 
@@ -31,17 +46,41 @@
 $ pnpm install
 ```
 
+## Database Setup
+
+1. Ensure CockroachDB is running on port 26257
+
+2. Run database migrations:
+```bash
+$ pnpm run prisma:generate
+$ pnpm run prisma:migrate
+```
+
+## Environment Configuration
+
+Copy the example environment file and configure your variables:
+
+```bash
+$ cp env.example .env
+```
+
+Update the `.env` file with your specific configuration.
+
 ## Compile and run the project
 
 ```bash
 # development
-$ pnpm run start
-
-# watch mode
 $ pnpm run start:dev
 
 # production mode
 $ pnpm run start:prod
+```
+
+## API Documentation
+
+Once the service is running, you can access the Swagger documentation at:
+```
+http://localhost:3001/docs
 ```
 
 ## Run tests

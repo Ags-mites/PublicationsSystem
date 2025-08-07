@@ -24,7 +24,7 @@ Este proyecto utiliza una arquitectura de microservicios con los siguientes comp
 ### Prerequisitos
 - Node.js 18+
 - pnpm
-- Docker y Docker Compose
+- Infrastructure services running externally (databases, message broker)
 
 ### 1. Instalación de Dependencias
 ```bash
@@ -32,24 +32,15 @@ Este proyecto utiliza una arquitectura de microservicios con los siguientes comp
 pnpm run install:all
 ```
 
-### 2. Inicialización de Bases de Datos
-```bash
-# Inicializar todas las bases de datos y Prisma
-pnpm run init:db
-```
+### 2. Levantar el Proyecto
 
-### 3. Levantar el Proyecto Completo
-
-#### Opción 1: Script Simplificado (Recomendado)
 ```bash
-# Iniciar todos los servicios con configuración automática de Prisma
-pnpm run dev:simple
-```
-
-#### Opción 2: Script Completo
-```bash
-# Iniciar todos los servicios en modo desarrollo con verificaciones
-pnpm run dev
+# Start each service individually
+cd services/auth-service && pnpm run start:dev
+cd services/publications-service && pnpm run start:dev
+cd services/catalog-service && pnpm run start:dev
+cd services/notifications-service && pnpm run start:dev
+cd services/gateway-service && pnpm run start:dev
 ```
 
 ## 🗄️ Configuración de Bases de Datos
@@ -63,11 +54,8 @@ Cada microservicio tiene su propia instancia de CockroachDB:
 
 ## 🔧 Scripts Disponibles
 
-- `pnpm run dev` - Inicia todos los servicios en desarrollo
-- `pnpm run init:db` - Inicializa bases de datos y ejecuta migraciones
-- `pnpm run docker:up` - Solo levanta infraestructura (Docker)
-- `pnpm run docker:down` - Detiene infraestructura
 - `pnpm run install:all` - Instala dependencias en todos los servicios
+- `pnpm run prisma:regenerate` - Regenera el cliente Prisma para todos los servicios
 
 ## 🌐 URLs de Servicios
 

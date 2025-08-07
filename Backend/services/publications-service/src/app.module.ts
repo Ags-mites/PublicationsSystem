@@ -10,13 +10,12 @@ import { AuthorsModule } from './authors/authors.module';
 import { EventsModule } from './events/events.module';
 import { MetricsModule } from './metrics/metrics.module';
 import { HealthModule } from './health/health.module';
-import { ConsulModule } from './consul/consul.module';
+// import { ConsulService } from './common/consul.service';
 
 import { appConfig } from './config/app.config';
 import { databaseConfig } from './config/database.config';
 import { rabbitmqConfig } from './config/rabbitmq.config';
 import { jwtConfig } from './config/jwt.config';
-import { consulConfig } from './config/consul.config';
 
 import { CorrelationIdMiddleware } from './common/middleware/correlation-id.middleware';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
@@ -31,7 +30,6 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
         databaseConfig,
         rabbitmqConfig,
         jwtConfig,
-        consulConfig,
       ],
       envFilePath: ['.env.local', '.env'],
       cache: true,
@@ -59,7 +57,6 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
     // Infrastructure modules
     MetricsModule,
     HealthModule,
-    ConsulModule,
   ],
   providers: [LoggingInterceptor],
 })

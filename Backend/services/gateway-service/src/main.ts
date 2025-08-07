@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { corsConfig } from './security/cors.config';
-import { ConsulService } from './consul/consul.service';
+// import { ConsulService } from './consul/consul.service';
 import * as compression from 'compression';
 
 async function bootstrap() {
@@ -16,7 +16,7 @@ async function bootstrap() {
     });
 
     const configService = app.get(ConfigService);
-    const consulService = app.get(ConsulService);
+    // const consulService = app.get(ConsulService);
 
     // Enable CORS with security configuration
     app.enableCors(corsConfig);
@@ -64,16 +64,16 @@ async function bootstrap() {
     await app.listen(port, host);
 
     // Register with Consul
-    try {
-      await consulService.registerService(
-        'api-gateway',
-        port,
-        `http://${host === '0.0.0.0' ? 'localhost' : host}:${port}/health`,
-      );
-      logger.log('Successfully registered with Consul');
-    } catch (error) {
-      logger.warn(`Failed to register with Consul: ${error.message}`);
-    }
+    // try {
+    //   await consulService.registerService(
+    //     'api-gateway',
+    //     port,
+    //     `http://${host === '0.0.0.0' ? 'localhost' : host}:${port}/health`,
+    //   );
+    //   logger.log('Successfully registered with Consul');
+    // } catch (error) {
+    //   logger.warn(`Failed to register with Consul: ${error.message}`);
+    // }
 
     // Log startup information
     logger.log(`🚀 API Gateway started successfully`);
@@ -95,14 +95,14 @@ async function bootstrap() {
     // Graceful shutdown
     process.on('SIGTERM', async () => {
       logger.log('SIGTERM received, shutting down gracefully');
-      await consulService.deregisterService('api-gateway');
+      // await consulService.deregisterService('api-gateway');
       await app.close();
       process.exit(0);
     });
 
     process.on('SIGINT', async () => {
       logger.log('SIGINT received, shutting down gracefully');
-      await consulService.deregisterService('api-gateway');
+      // await consulService.deregisterService('api-gateway');
       await app.close();
       process.exit(0);
     });

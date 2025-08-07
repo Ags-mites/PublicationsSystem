@@ -12,21 +12,24 @@ import { NotificationsController } from './controllers/notifications.controller'
 import { PreferencesController } from './controllers/preferences.controller';
 import { SubscriptionsController } from './controllers/subscriptions.controller';
 import { HealthController } from './controllers/health.controller';
+import { AdminController } from './controllers/admin.controller';
 
 import { NotificationProcessor } from './queues/notification.processor';
 import { NotificationProcessingService } from './services/notification-processing.service';
 import { EmailService } from './services/email.service';
+import { EventPublisherService } from './services/event-publisher.service';
+import { AuthClientService } from './services/auth-client.service';
+// import { ConsulService } from './common/consul.service';
 
 import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
 import rabbitmqConfig from './config/rabbitmq.config';
-import redisConfig from './config/redis.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, databaseConfig, rabbitmqConfig, redisConfig],
+      load: [appConfig, databaseConfig, rabbitmqConfig],
       envFilePath: ['.env.local', '.env'],
     }),
     ThrottlerModule.forRoot({
@@ -36,10 +39,8 @@ import redisConfig from './config/redis.config';
     BullModule.forRootAsync({
       useFactory: (configService) => ({
         redis: {
-          host: configService.get('redis.host'),
-          port: configService.get('redis.port'),
-          password: configService.get('redis.password'),
-          db: configService.get('redis.db'),
+          host: 'localhost',
+          port: 6379,
         },
       }),
       inject: [ConfigService],
@@ -69,11 +70,15 @@ import redisConfig from './config/redis.config';
     PreferencesController,
     SubscriptionsController,
     HealthController,
+    AdminController,
   ],
   providers: [
     NotificationProcessor,
     NotificationProcessingService,
     EmailService,
+    EventPublisherService,
+    AuthClientService,
+    // ConsulService,
   ],
 })
 export class AppModule {}
