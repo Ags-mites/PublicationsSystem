@@ -13,7 +13,7 @@ export class HealthController {
   check() {
     return this.health.check([
       // Verificar que el servicio esté respondiendo
-      () => this.http.pingCheck('auth-service', 'http://localhost:3001/health'),
+      () => this.http.pingCheck('auth-service', 'http://localhost:3001/api/v1/health'),
     ]);
   }
 } 
