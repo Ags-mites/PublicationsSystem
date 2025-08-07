@@ -24,7 +24,7 @@ import {
 import { ReviewsService } from '../services/reviews.service';
 import { CreateReviewDto } from '../dto/create-review.dto';
 import { CompleteReviewDto } from '../dto/complete-review.dto';
-import { MicroserviceAuthGuard } from '../../common/guards/microservice-auth.guard';
+// import { MicroserviceAuthGuard } from '../../common/guards/microservice-auth.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UserRoles } from '../../common/enums/user-roles.enum';
 import { ReviewStatus } from '../../common/enums/review-status.enum';
@@ -32,8 +32,8 @@ import { UuidValidationPipe } from '../../common/pipes/uuid-validation.pipe';
 
 @ApiTags('Reviews')
 @Controller('reviews')
-@UseGuards(MicroserviceAuthGuard)
-@ApiBearerAuth()
+// @UseGuards(MicroserviceAuthGuard)
+// @ApiBearerAuth()
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 

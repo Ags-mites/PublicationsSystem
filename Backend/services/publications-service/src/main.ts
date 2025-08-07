@@ -21,11 +21,11 @@ async function setupSwagger(app: any) {
     .setDescription('Academic Publications Management Microservice')
     .setVersion('1.0')
     .addBearerAuth()
-    .addTag('publications', 'Publications management endpoints')
-    .addTag('reviews', 'Review system endpoints')
-    .addTag('authors', 'Authors management endpoints')
-    .addTag('metrics', 'Service metrics endpoints')
-    .addTag('health', 'Health check endpoints')
+    .addTag('Publications', 'Publications management endpoints')
+    .addTag('Reviews', 'Review system endpoints')
+    .addTag('Authors', 'Authors management endpoints')
+    .addTag('Metrics', 'Service metrics endpoints')
+    .addTag('Health', 'Health check endpoints')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

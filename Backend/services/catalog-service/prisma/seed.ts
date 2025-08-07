@@ -42,9 +42,9 @@ async function main() {
             await prisma.catalogAuthor.create({
                 data: authorData,
             });
-            console.log(`✅ Created catalog author: ${authorData.fullName}`);
-        } else {
-            console.log(`⚠️  Catalog author already exists: ${authorData.fullName}`);
+                    console.log(`Created catalog author: ${authorData.fullName}`);
+      } else {
+        console.log(`Catalog author already exists: ${authorData.fullName}`);
         }
     }
 
@@ -160,9 +160,9 @@ async function main() {
             await prisma.catalogPublication.create({
                 data: pubData,
             });
-            console.log(`✅ Created catalog publication: ${pubData.title}`);
-        } else {
-            console.log(`⚠️  Catalog publication already exists: ${pubData.title}`);
+                    console.log(`Created catalog publication: ${pubData.title}`);
+      } else {
+        console.log(`Catalog publication already exists: ${pubData.title}`);
         }
     }
 
@@ -201,8 +201,8 @@ async function main() {
         });
     }
 
-    console.log('✅ Created search statistics');
-    console.log('🎉 Catalog database seeding completed!');
+    console.log('Created search statistics');
+    console.log('Catalog database seeding completed!');
 }
 
 main()

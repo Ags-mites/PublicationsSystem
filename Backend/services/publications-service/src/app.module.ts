@@ -14,8 +14,8 @@ import { HealthModule } from './health/health.module';
 
 import { appConfig } from './config/app.config';
 import { databaseConfig } from './config/database.config';
-import { rabbitmqConfig } from './config/rabbitmq.config';
-import { jwtConfig } from './config/jwt.config';
+// import { rabbitmqConfig } from './config/rabbitmq.config';
+// import { jwtConfig } from './config/jwt.config';
 
 import { CorrelationIdMiddleware } from './common/middleware/correlation-id.middleware';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
@@ -28,8 +28,8 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
       load: [
         appConfig,
         databaseConfig,
-        rabbitmqConfig,
-        jwtConfig,
+        // rabbitmqConfig,
+        // jwtConfig,
       ],
       envFilePath: ['.env.local', '.env'],
       cache: true,

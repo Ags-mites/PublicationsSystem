@@ -49,10 +49,10 @@ async function bootstrap() {
   }
   await app.listen(port);
   
-  console.log(`🚀 Catalog Service running on port ${port}`);
-  console.log(`📚 API: http://localhost:${port}/${apiPrefix}`);
-  console.log(`📚 Swagger docs: http://localhost:${port}/docs`);
-  console.log(`🔍 Health: http://localhost:${port}/${apiPrefix}/health`);
+      console.log(`Catalog Service running on port ${port}`);
+      console.log(`API: http://localhost:${port}/${apiPrefix}`);
+    console.log(`Swagger docs: http://localhost:${port}/docs`);
+      console.log(`Health: http://localhost:${port}/${apiPrefix}/health`);
 
   process.on('SIGTERM', async () => {
     await app.close();
