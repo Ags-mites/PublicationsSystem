@@ -1,9 +1,9 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import Consul from 'consul';
+const Consul = require('consul');
 
 @Injectable()
 export class ConsulService implements OnModuleInit, OnModuleDestroy {
-  private consul: Consul;
+  private consul: any;
   private readonly serviceId: string;
 
   constructor() {
@@ -17,9 +17,10 @@ export class ConsulService implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
     try {
       const serviceName = process.env.SERVICE_NAME || 'auth-service';
-      const serviceHost = process.env.SERVICE_HOST || 'localhost';
+      const serviceHost = process.env.CONSUL_HOST || 'localhost';
       const servicePort = parseInt(process.env.PORT || '3001', 10);
-
+      const serviceApiPrefix = process.env.API_PREFIX || 'api';
+      console.log(`http://${serviceHost}:${servicePort}/${serviceApiPrefix}/health`);
       await this.consul.agent.service.register({
         id: this.serviceId,
         name: serviceName,
@@ -27,7 +28,7 @@ export class ConsulService implements OnModuleInit, OnModuleDestroy {
         port: servicePort,
         check: {
           name: `${serviceName}-health`,
-          http: `http://${serviceHost}:${servicePort}/health`,
+          http: `http://${serviceHost}:${servicePort}/${serviceApiPrefix}/health`,
           interval: '10s',
           timeout: '5s',
         },

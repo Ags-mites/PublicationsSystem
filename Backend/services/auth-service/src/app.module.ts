@@ -11,8 +11,8 @@ import { PrismaModule } from './prisma/prisma.module';
 import { JwtConfigService } from './config/jwt.config';
 import { DefaultUsersSeeder } from './seeds/default-users.seed';
 import { HealthModule } from './health/health.module';
-// import { ConsulService } from './common/consul.service';
-// import { ConsulDiscoveryService } from './common/consul-discovery.service';
+import { ConsulService } from './common/consul.service';
+import { ConsulDiscoveryService } from './common/consul-discovery.service';
 
 @Module({
   imports: [
@@ -41,12 +41,18 @@ import { HealthModule } from './health/health.module';
     EventsModule,
     HealthModule,
   ],
-  providers: [DefaultUsersSeeder],
+  providers: [DefaultUsersSeeder, ConsulService, ConsulDiscoveryService ],
 })
 export class AppModule implements OnModuleInit {
-  constructor(private readonly seeder: DefaultUsersSeeder) {}
+  constructor(
+    private readonly seeder: DefaultUsersSeeder,
+    private readonly consulService: ConsulService,
+    private readonly consulDiscoveryService: ConsulDiscoveryService
+  ) {}
 
   async onModuleInit() {
     await this.seeder.seed();
+    await this.consulService.onModuleInit();
+    await this.consulDiscoveryService.getPublicationsServiceUrl();
   }
 }
