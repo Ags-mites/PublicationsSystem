@@ -100,25 +100,14 @@ export class AuthController {
     return this.authService.getJwksKeys();
   }
 
-  @Get('health')
-  @ApiOperation({ summary: 'Health check endpoint' })
-  @ApiResponse({ status: 200, description: 'Service is healthy' })
-  healthCheck() {
-    return {
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      service: 'auth-service',
-      version: '1.0.0',
-    };
-  }
-
   @Get('users')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ROLE_ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all users (Admin only)' })
+  @ApiResponse({ status: 200, description: 'Users retrieved successfully' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
   async getAllUsers() {
-    // Implementation for admin to list users
-    return { message: 'Admin endpoint - list users' };
+    return await this.authService.getAllUsers();
   }
 }

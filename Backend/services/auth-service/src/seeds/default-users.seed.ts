@@ -89,13 +89,13 @@ export class DefaultUsersSeeder {
             },
           });
 
-          this.logger.log(`✅ Created default user: ${defaultUser.email}`);
-        } else {
-          this.logger.log(`⚠️  Default user already exists: ${defaultUser.email}`);
-        }
-      }
+                this.logger.log(`Created default user: ${defaultUser.email}`);
+    } else {
+      this.logger.log(`Default user already exists: ${defaultUser.email}`);
+    }
+  }
 
-      this.logger.log('✅ Default users seeding completed');
+  this.logger.log('Default users seeding completed');
     } catch (error) {
       this.logger.error('❌ Error seeding default users', error);
     }

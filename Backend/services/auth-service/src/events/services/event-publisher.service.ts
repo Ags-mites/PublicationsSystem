@@ -50,7 +50,7 @@ export class EventPublisherService {
       // Declare exchange
       await this.channel.assertExchange(this.exchangeName, 'topic', { durable: true });
       
-      this.logger.log('✅ RabbitMQ connection established');
+      this.logger.log('RabbitMQ connection established');
     } catch (error) {
       this.logger.error('❌ Failed to connect to RabbitMQ', error);
     }
@@ -106,7 +106,7 @@ export class EventPublisherService {
     try {
       await this.channel?.close();
       await this.connection?.close();
-      this.logger.log('✅ RabbitMQ connection closed');
+      this.logger.log('RabbitMQ connection closed');
     } catch (error) {
       this.logger.error('❌ Error closing RabbitMQ connection', error);
     }

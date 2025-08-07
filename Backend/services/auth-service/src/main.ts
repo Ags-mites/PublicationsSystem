@@ -45,8 +45,8 @@ async function bootstrap() {
 
   await app.listen(port);
 
-  console.log(`✅ Swagger docs: http://localhost:${port}/docs`);
-  console.log(`🚀 Auth Service running on port ${port}`);
+  console.log(`Swagger docs: http://localhost:${port}/docs`);
+  console.log(`Auth Service running on port ${port}`);
 
   process.on('SIGTERM', async () => {
     await app.close();

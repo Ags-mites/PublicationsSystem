@@ -183,6 +183,11 @@ export class AuthService {
     return this.sanitizeUser(updatedUser);
   }
 
+  async getAllUsers(): Promise<Partial<UserEntity>[]> {
+    const users = await this.usersService.findAll();
+    return users.map(user => this.sanitizeUser(user));
+  }
+
   async validateUser(email: string, password: string): Promise<UserEntity | null> {
     const user = await this.usersService.findByEmail(email);
     if (user && await bcrypt.compare(password, user.password)) {

@@ -49,6 +49,18 @@ export class UsersService {
     return user ? this.mapToUserEntity(user) : null;
   }
 
+  async findAll(): Promise<UserEntity[]> {
+    try {
+      const users = await this.prisma.user.findMany({
+        orderBy: { createdAt: 'desc' },
+      });
+      return users.map(user => this.mapToUserEntity(user));
+    } catch (error) {
+      this.logger.error(`Error fetching all users: ${error.message}`);
+      throw new BadRequestException('Failed to fetch users');
+    }
+  }
+
   async update(id: string, updateData: UserUpdateInput): Promise<UserEntity> {
     try {
       const user = await this.prisma.user.update({
