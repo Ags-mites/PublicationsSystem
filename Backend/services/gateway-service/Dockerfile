@@ -18,24 +18,27 @@ COPY services/gateway-service/. .
 RUN pnpm run build
 
 # Etapa 2: Producción
-FROM node:18-alpine AS production
+FROM node:18 AS production
 
 WORKDIR /app
 
 # Instalar herramientas necesarias para la inicialización
-RUN apk add --no-cache netcat-openbsd
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    netcat-openbsd ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copiar solo lo necesario desde la etapa anterior
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./
 
-# Copia el script de inicialización
-COPY scripts/init-service.sh /usr/local/bin/init-service.sh
-RUN chmod +x /usr/local/bin/init-service.sh
+# Copia el entrypoint único (aunque gateway no usa DB)
+COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Exponer puerto
 EXPOSE 8080
 
-# Script de inicio que espera a que los servicios estén listos y luego ejecuta la aplicación
-CMD ["/bin/sh", "-c", "echo 'Esperando a que los servicios estén listos...' && sleep 10 && node dist/src/main"] 
+# Script de inicio (usa el entrypoint por consistencia; solo ejecuta la app)
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["node", "dist/src/main"]

@@ -13,16 +13,20 @@ RUN npm install -g pnpm && pnpm install
 # Copia el código fuente del microservicio
 COPY services/auth-service/. .
 
-# Genera Prisma client y construye la aplicación
-RUN pnpm run prisma:generate
+# Genera Prisma client (forzar engine node)
+ENV PRISMA_CLIENT_ENGINE_TYPE=library
+ENV PRISMA_GENERATE_DATAPROXY=false
+RUN PRISMA_CLIENT_ENGINE_TYPE=library PRISMA_GENERATE_DATAPROXY=false pnpm run prisma:generate
 RUN pnpm run build
 
-FROM node:18-alpine AS production
+FROM node:18 AS production
 
 WORKDIR /app
 
 # Instalar herramientas necesarias para la inicialización
-RUN apk add --no-cache netcat-openbsd curl
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    netcat-openbsd curl ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
 # Instalar cliente de CockroachDB
 RUN curl -L https://binaries.cockroachdb.com/cockroach-v23.1.13.linux-amd64.tgz | tar -xz && \
@@ -35,11 +39,12 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/prisma ./prisma
 
-# Copia el script de inicialización
-COPY scripts/init-service.sh /usr/local/bin/init-service.sh
-RUN chmod +x /usr/local/bin/init-service.sh
+# Copia el entrypoint único de inicialización
+COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 EXPOSE 3001
 
-# Script de inicio que inicializa la BD y luego ejecuta la aplicación
-CMD ["/bin/sh", "-c", "/usr/local/bin/init-service.sh auth-service auth_db && node dist/src/main"] 
+# Script de inicio: entrypoint hace creación de DB y migraciones, luego corre la app
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["node", "dist/src/main"]

@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # Infraestructura - Inicio primero
   cockroachdb:
     image: cockroachdb/cockroach:latest
     container_name: cockroachdb
@@ -12,6 +13,12 @@ services:
       - cockroachdb_data:/cockroach/cockroach-data
     networks:
       - microservices-network
+    healthcheck:
+      test: ["CMD", "cockroach", "node", "status", "--insecure", "--host=cockroachdb:26257"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -26,6 +33,12 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - microservices-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   consul:
     image: hashicorp/consul:latest
@@ -38,7 +51,14 @@ services:
       - consul_data:/consul/data
     networks:
       - microservices-network
+    healthcheck:
+      test: ["CMD", "consul", "members"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
+  # Microservicios - Inicio secuencial
   auth-service:
     build:
       context: .
@@ -50,11 +70,20 @@ services:
     env_file:
       - ./services/auth-service/env.docker
     depends_on:
-      - cockroachdb
-      - rabbitmq
-      - consul
+      cockroachdb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
     networks:
       - microservices-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   publications-service:
     build:
@@ -67,28 +96,22 @@ services:
     env_file:
       - ./services/publications-service/env.docker
     depends_on:
-      - cockroachdb
-      - rabbitmq
-      - consul
+      cockroachdb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
     networks:
       - microservices-network
-
-  catalog-service:
-    build:
-      context: .
-      dockerfile: services/catalog-service/Dockerfile
-      target: production
-    container_name: catalog-service
-    ports:
-      - "3003:3003"
-    env_file:
-      - ./services/catalog-service/env.docker
-    depends_on:
-      - cockroachdb
-      - rabbitmq
-      - consul
-    networks:
-      - microservices-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   notifications-service:
     build:
@@ -101,11 +124,56 @@ services:
     env_file:
       - ./services/notifications-service/env.docker
     depends_on:
-      - cockroachdb
-      - rabbitmq
-      - consul
+      cockroachdb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      publications-service:
+        condition: service_healthy
     networks:
       - microservices-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3004/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  catalog-service:
+    build:
+      context: .
+      dockerfile: services/catalog-service/Dockerfile
+      target: production
+    container_name: catalog-service
+    ports:
+      - "3003:3003"
+    env_file:
+      - ./services/catalog-service/env.docker
+    depends_on:
+      cockroachdb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      publications-service:
+        condition: service_healthy
+      notifications-service:
+        condition: service_healthy
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3003/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   gateway-service:
     build:
@@ -118,13 +186,28 @@ services:
     env_file:
       - ./services/gateway-service/env.docker
     depends_on:
-      - auth-service
-      - publications-service
-      - catalog-service
-      - notifications-service
-      - consul
+      cockroachdb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      publications-service:
+        condition: service_healthy
+      notifications-service:
+        condition: service_healthy
+      catalog-service:
+        condition: service_healthy
     networks:
       - microservices-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
 volumes:
   cockroachdb_data:
