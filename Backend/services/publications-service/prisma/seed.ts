@@ -47,7 +47,7 @@ async function main() {
             console.log(`Created author: ${authorData.email}`);
         } else {
             createdAuthors.push(existingAuthor);
-            console.log(`⚠️  Author already exists: ${authorData.email}`);
+            console.log(`Author already exists: ${authorData.email}`);
         }
     }
 
@@ -163,9 +163,9 @@ async function main() {
                 });
             }
 
-            console.log(`✅ Created publication: ${pubData.title}`);
+            console.log(`Created publication: ${pubData.title}`);
         } else {
-            console.log(`⚠️  Publication already exists: ${pubData.title}`);
+            console.log(`Publication already exists: ${pubData.title}`);
         }
     }
 
@@ -192,16 +192,16 @@ async function main() {
                     score: 9,
                 },
             });
-            console.log('✅ Created sample review');
+            console.log('Created sample review');
         }
     }
 
-    console.log('🎉 Publications database seeding completed!');
+    console.log('Publications database seeding completed!');
 }
 
 main()
     .catch((e) => {
-        console.error('❌ Seeding failed:', e);
+        console.error('Seeding failed:', e);
         process.exit(1);
     })
     .finally(async () => {
