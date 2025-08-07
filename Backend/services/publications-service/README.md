@@ -101,7 +101,7 @@ Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
 
 Microservicio de gestión de publicaciones académicas construido con NestJS, Prisma ORM y CockroachDB.
 
-## 🚀 Características
+## Características
 
 - **Gestión completa de publicaciones**: Artículos y libros académicos
 - **Máquina de estados**: Transiciones controladas entre estados (DRAFT → IN_REVIEW → APPROVED → PUBLISHED)
@@ -113,14 +113,14 @@ Microservicio de gestión de publicaciones académicas construido con NestJS, Pr
 - **Validación robusta**: DTOs con class-validator
 - **Logging estructurado**: Interceptores para logging y correlación
 
-## 📋 Prerrequisitos
+## Prerrequisitos
 
 - Node.js 18+
 - Docker y Docker Compose
 - CockroachDB (o PostgreSQL)
 - RabbitMQ (opcional, para eventos)
 
-## 🛠️ Instalación
+## Instalación
 
 1. **Clonar el repositorio**
 ```bash
@@ -185,7 +185,7 @@ pnpm run build
 pnpm start
 ```
 
-## 📚 API Endpoints
+## API Endpoints
 
 ### Publicaciones
 
@@ -214,7 +214,7 @@ pnpm start
 |--------|----------|-------------|
 | `GET` | `/docs` | Documentación Swagger |
 
-## 🔐 Autenticación
+## Autenticación
 
 Este microservicio está diseñado para funcionar detrás de un API Gateway. La autenticación se maneja de la siguiente manera:
 
@@ -230,7 +230,7 @@ El gateway valida el JWT y pasa la información del usuario en headers:
 x-user-info: {"sub": "user-id", "email": "user@example.com", "roles": ["author"]}
 ```
 
-## 📊 Estados de Publicación
+## Estados de Publicación
 
 ```
 DRAFT → IN_REVIEW → CHANGES_REQUESTED → IN_REVIEW → APPROVED → PUBLISHED
@@ -238,7 +238,7 @@ DRAFT → IN_REVIEW → CHANGES_REQUESTED → IN_REVIEW → APPROVED → PUBLISH
                                 WITHDRAWN
 ```
 
-## 🎯 Ejemplos de Uso
+## Ejemplos de Uso
 
 ### Crear una publicación
 
@@ -277,7 +277,7 @@ curl -X PUT http://localhost:3002/api/v1/publications/{id}/approve \
   -H "x-user-info: {\"sub\": \"user-uuid\", \"email\": \"user@example.com\", \"roles\": [\"editor\"]}"
 ```
 
-## 🏗️ Arquitectura
+## Arquitectura
 
 ```
 src/
@@ -297,7 +297,7 @@ src/
 └── consul/          # Service discovery
 ```
 
-## 🔄 Patrón Outbox
+## Patrón Outbox
 
 El servicio implementa el patrón Outbox para garantizar la entrega de eventos:
 
@@ -319,7 +319,7 @@ npm run test:e2e
 npm run test:cov
 ```
 
-## 🚀 Despliegue
+## Despliegue
 
 El servicio puede ser desplegado en cualquier plataforma que soporte Node.js:
 
@@ -329,7 +329,7 @@ El servicio puede ser desplegado en cualquier plataforma que soporte Node.js:
 - **Azure**: App Service o Container Instances
 - **DigitalOcean**: App Platform o Droplets
 
-## 📈 Monitoreo
+## Monitoreo
 
 - **Health checks**: `/api/v1/health`
 - **Métricas**: `/api/v1/metrics`
@@ -344,6 +344,6 @@ El servicio puede ser desplegado en cualquier plataforma que soporte Node.js:
 4. Push al branch (`git push origin feature/AmazingFeature`)
 5. Abrir Pull Request
 
-## 📄 Licencia
+## Licencia
 
 Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.

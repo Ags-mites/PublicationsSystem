@@ -1,6 +1,6 @@
 # Guía de Desarrollo - Publications Service
 
-## 🚀 Configuración Rápida
+## Configuración Rápida
 
 ### 1. Instalar dependencias
 ```bash
@@ -110,7 +110,7 @@ curl -X GET "http://localhost:3002/api/v1/publications/{publication-id}/history"
   -H "x-user-info: {\"sub\": \"user-123\", \"email\": \"author@example.com\", \"roles\": [\"author\"]}"
 ```
 
-## 🔍 Health Checks
+## Health Checks
 
 ### Verificar salud del servicio
 ```bash
@@ -122,14 +122,14 @@ curl -X GET http://localhost:3002/api/v1/health
 curl -X GET http://localhost:3002/api/v1/metrics
 ```
 
-## 📚 Documentación Swagger
+## Documentación Swagger
 
 Una vez que el servicio esté corriendo, visita:
 ```
 http://localhost:3002/docs
 ```
 
-## 🐛 Debugging
+## Debugging
 
 ### Logs del servicio
 Los logs se muestran en la consola con el siguiente formato:
@@ -170,7 +170,7 @@ pnpm run test:cov
 pnpm run test:e2e
 ```
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Error de conexión a base de datos
 - Verificar que CockroachDB esté corriendo
@@ -187,7 +187,7 @@ pnpm run test:e2e
 - Verificar tipos de datos (strings, arrays, etc.)
 - Revisar los logs para detalles específicos
 
-## 📝 Notas de Desarrollo
+## Notas de Desarrollo
 
 ### Estructura de User Info
 El header `x-user-info` debe contener un JSON con:

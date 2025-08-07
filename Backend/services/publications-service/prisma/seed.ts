@@ -44,7 +44,7 @@ async function main() {
                 data: authorData,
             });
             createdAuthors.push(author);
-            console.log(`✅ Created author: ${authorData.email}`);
+            console.log(`Created author: ${authorData.email}`);
         } else {
             createdAuthors.push(existingAuthor);
             console.log(`⚠️  Author already exists: ${authorData.email}`);
