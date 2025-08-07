@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CatalogStatisticsDto } from '../dto';
+import { CatalogStatisticsDto } from './statistics.dto';
 import { CatalogStatus } from '@prisma/client';
 
 @Injectable()

@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
-import { CatalogService } from '../services/catalog.service';
+import { CatalogService } from '../modules/catalog/services/catalog.service';
 import { 
   PublicationPublishedEvent, 
   PublicationWithdrawnEvent,
   AuthorCreatedEvent,
   AuthorUpdatedEvent 
-} from '../interfaces/events.interface';
+} from '../common/events.interface';
 
 @Injectable()
 export class PublicationEventsConsumer {

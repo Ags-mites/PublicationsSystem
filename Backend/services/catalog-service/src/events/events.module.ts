@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PublicationEventsConsumer } from './publication-events.consumer';
-import { CatalogService } from '../services/catalog.service';
-import { CatalogAuthorService } from '../services/catalog-author.service';
+import { CatalogService } from '../modules/catalog/services/catalog.service';
+import { CatalogAuthorService } from '../modules/authors/services/catalog-author.service';
 import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({

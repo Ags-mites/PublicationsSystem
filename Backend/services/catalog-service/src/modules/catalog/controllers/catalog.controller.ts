@@ -17,16 +17,13 @@ import {
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { CatalogSearchService } from '../services/catalog-search.service';
-import { CatalogAuthorService } from '../services/catalog-author.service';
-import { MetricsService } from '../services/metrics.service';
 import { CatalogService } from '../services/catalog.service';
+import { MetricsService } from '../../../common/metrics.service';
 import {
   CatalogSearchDto,
   CatalogSearchResponseDto,
   CatalogPublicationDto,
-  CatalogAuthorDto,
   CatalogStatisticsDto,
-  HealthResponseDto,
 } from '../dto';
 
 @ApiTags('Catalog')
@@ -36,7 +33,6 @@ export class CatalogController {
 
   constructor(
     private searchService: CatalogSearchService,
-    private authorService: CatalogAuthorService,
     private metricsService: MetricsService,
     private catalogService: CatalogService,
   ) {}

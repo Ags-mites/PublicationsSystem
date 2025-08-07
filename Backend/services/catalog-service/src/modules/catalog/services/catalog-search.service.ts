@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { MetricsService } from './metrics.service';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { MetricsService } from '../../../common/metrics.service';
 import {
   CatalogSearchDto,
   CatalogSearchResponseDto,

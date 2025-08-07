@@ -21,8 +21,6 @@ jest.*
 
 # � Environment files
 .env
-.env.*
-!.env.example
 
 # � IDEs & Editors
 .vscode/

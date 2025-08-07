@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { CatalogAuthorDto, CatalogPublicationDto, PaginationDto } from '../dto';
 import { CatalogStatus } from '@prisma/client';
 

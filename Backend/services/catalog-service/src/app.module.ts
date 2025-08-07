@@ -2,26 +2,23 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { CacheModule } from '@nestjs/cache-manager';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+// import { ClientsModule, Transport } from '@nestjs/microservices';
 import { Reflector } from '@nestjs/core';
 import * as Joi from 'joi';
 
 import { PrismaModule } from './prisma/prisma.module';
-import { EventsModule } from './events/events.module';
+// import { EventsModule } from './events/events.module';
 
-import { CatalogController } from './controllers/catalog.controller';
-import { AuthorsController } from './controllers/authors.controller';
-import { HealthController } from './controllers/health.controller';
+import { CatalogModule } from './modules/catalog/catalog.module';
+import { AuthorsModule } from './modules/authors/authors.module';
+import { HealthModule } from './modules/health/health.module';
 
-import { CatalogService } from './services/catalog.service';
-import { CatalogSearchService } from './services/catalog-search.service';
-import { CatalogAuthorService } from './services/catalog-author.service';
-import { MetricsService } from './services/metrics.service';
+import { MetricsService } from './common/metrics.service';
 // import { ConsulService } from './common/consul.service';
 
 import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
-import rabbitmqConfig from './config/rabbitmq.config';
+// import rabbitmqConfig from './config/rabbitmq.config';
 
 @Module({
   imports: [
@@ -34,7 +31,7 @@ import rabbitmqConfig from './config/rabbitmq.config';
         DATABASE_URL: Joi.string().required(),
         SERVICE_NAME: Joi.string().default('catalog-service'),
       }),
-      load: [appConfig, databaseConfig, rabbitmqConfig],
+      load: [appConfig, databaseConfig],
       envFilePath: ['.env.local', '.env'],
     }),
     ThrottlerModule.forRoot({
@@ -43,34 +40,28 @@ import rabbitmqConfig from './config/rabbitmq.config';
     }),
     CacheModule.register({
       isGlobal: true,
-      ttl: 300000, // 5 minutes default
+      ttl: 300000, 
       max: 100,
     }),
-    ClientsModule.register([
-      {
-        name: 'CATALOG_SERVICE',
-        transport: Transport.RMQ,
-        options: {
-          urls: [process.env.RABBITMQ_URL || 'amqp://localhost:5672'],
-          queue: 'catalog_queue',
-          queueOptions: {
-            durable: true,
-          },
-        },
-      },
-    ]),
+    // ClientsModule.register([
+    //   {
+    //     name: 'CATALOG_SERVICE',
+    //     transport: Transport.RMQ,
+    //     options: {
+    //       urls: [process.env.RABBITMQ_URL || 'amqp://localhost:5672'],
+    //       queue: 'catalog_queue',
+    //       queueOptions: {
+    //       durable: true,
+    //     },
+    //   },
+    // ]),
     PrismaModule,
-    EventsModule,
-  ],
-  controllers: [
-    CatalogController,
-    AuthorsController,
-    HealthController,
+    // EventsModule,
+    CatalogModule,
+    AuthorsModule,
+    HealthModule,
   ],
   providers: [
-    CatalogService,
-    CatalogAuthorService,
-    CatalogSearchService,
     MetricsService,
     // ConsulService,
   ],

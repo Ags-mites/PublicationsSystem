@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { CatalogAuthorService } from './catalog-author.service';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { CatalogAuthorService } from '../../authors/services/catalog-author.service';
 import { 
   PublicationPublishedEvent, 
   PublicationWithdrawnEvent,
   AuthorCreatedEvent,
   AuthorUpdatedEvent 
-} from '../interfaces/events.interface';
+} from '../../../common/events.interface';
 import { CatalogStatus } from '@prisma/client';
 
 @Injectable()

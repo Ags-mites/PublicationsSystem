@@ -14,11 +14,10 @@ import { LoggingInterceptor } from './interceptors/logging.interceptor';
 async function setupSwagger(app: any) {
   const config = new DocumentBuilder()
     .setTitle('Catalog Service API')
-    .setDescription('Public catalog microservice for academic publications')
     .setVersion('1.0')
-    .addTag('Catalog', 'Publications catalog endpoints')
-    .addTag('Authors', 'Authors management endpoints')
-    .addTag('Health', 'Service health and metrics endpoints')
+    .addTag('Catalog')
+    .addTag('Authors')
+    .addTag('Health')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
