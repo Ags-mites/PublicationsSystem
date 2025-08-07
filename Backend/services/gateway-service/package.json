@@ -32,7 +32,7 @@
     "helmet": "^7.0.0",
     "http-proxy-middleware": "^2.0.6",
     "jsonwebtoken": "^9.0.0",
-    "jwks-client": "^2.0.5",
+    "jwks-rsa": "^3.0.1",
     "node-fetch": "^3.3.1",
     "opossum": "^7.0.0",
     "reflect-metadata": "^0.1.13",

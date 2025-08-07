@@ -1,7 +1,7 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as jwt from 'jsonwebtoken';
-import jwksClient from 'jwks-client';
+import * as jwksRsa from 'jwks-rsa';
 
 export interface JwtPayload {
   sub: string;
@@ -21,7 +21,7 @@ export class JwtService {
   constructor(private configService: ConfigService) {
     const authServiceUrl = this.configService.get<string>('AUTH_SERVICE_URL', 'http://localhost:3001');
     
-    this.jwksClient = jwksClient({
+    this.jwksClient = jwksRsa({
       jwksUri: `${authServiceUrl}/api/auth/jwks`,
       cache: true,
       cacheMaxEntries: 5,

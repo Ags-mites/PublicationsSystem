@@ -41,13 +41,14 @@ services:
 
   auth-service:
     build:
-      context: ./services/auth-service
+      context: .
+      dockerfile: services/auth-service/Dockerfile
       target: production
     container_name: auth-service
     ports:
       - "3001:3001"
     env_file:
-      - ./services/auth-service/.env
+      - ./services/auth-service/env.docker
     depends_on:
       - cockroachdb
       - rabbitmq
@@ -57,13 +58,14 @@ services:
 
   publications-service:
     build:
-      context: ./services/publications-service
+      context: .
+      dockerfile: services/publications-service/Dockerfile
       target: production
     container_name: publications-service
     ports:
       - "3002:3002"
     env_file:
-      - ./services/publications-service/.env
+      - ./services/publications-service/env.docker
     depends_on:
       - cockroachdb
       - rabbitmq
@@ -73,13 +75,14 @@ services:
 
   catalog-service:
     build:
-      context: ./services/catalog-service
+      context: .
+      dockerfile: services/catalog-service/Dockerfile
       target: production
     container_name: catalog-service
     ports:
       - "3003:3003"
     env_file:
-      - ./services/catalog-service/.env
+      - ./services/catalog-service/env.docker
     depends_on:
       - cockroachdb
       - rabbitmq
@@ -89,13 +92,14 @@ services:
 
   notifications-service:
     build:
-      context: ./services/notifications-service
+      context: .
+      dockerfile: services/notifications-service/Dockerfile
       target: production
     container_name: notifications-service
     ports:
       - "3004:3004"
     env_file:
-      - ./services/notifications-service/.env
+      - ./services/notifications-service/env.docker
     depends_on:
       - cockroachdb
       - rabbitmq
@@ -105,13 +109,14 @@ services:
 
   gateway-service:
     build:
-      context: ./services/gateway-service
+      context: .
+      dockerfile: services/gateway-service/Dockerfile
       target: production
     container_name: gateway-service
     ports:
       - "8081:8080"
     env_file:
-      - ./services/gateway-service/.env
+      - ./services/gateway-service/env.docker
     depends_on:
       - auth-service
       - publications-service

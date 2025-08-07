@@ -34,6 +34,7 @@
     "compression": "^1.7.4",
     "consul": "^2.0.1",
     "helmet": "^7.0.0",
+    "joi": "^17.13.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1"
   },

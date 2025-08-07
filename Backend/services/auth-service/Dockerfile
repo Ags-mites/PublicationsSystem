@@ -1,35 +1,45 @@
-# Etapa 1: Build
 FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copiar archivos de definición de paquetes
-COPY package.json pnpm-lock.yaml ./
+# Copia el lockfile desde el root del monorepo
+COPY pnpm-lock.yaml ./
+# Copia el package.json del microservicio
+COPY services/auth-service/package.json ./
 
-# Instalar PNPM y dependencias
-RUN npm install -g pnpm && pnpm install --frozen-lockfile
+# Instala pnpm y dependencias
+RUN npm install -g pnpm && pnpm install
 
-# Copiar todo el código fuente
-COPY . .
+# Copia el código fuente del microservicio
+COPY services/auth-service/. .
 
-# Generar cliente de Prisma
+# Genera Prisma client y construye la aplicación
 RUN pnpm run prisma:generate
-
-# Compilar la aplicación
 RUN pnpm run build
 
-# Etapa 2: Producción
 FROM node:18-alpine AS production
 
 WORKDIR /app
 
-# Copiar solo lo necesario desde la etapa anterior
+# Instalar herramientas necesarias para la inicialización
+RUN apk add --no-cache netcat-openbsd curl
+
+# Instalar cliente de CockroachDB
+RUN curl -L https://binaries.cockroachdb.com/cockroach-v23.1.13.linux-amd64.tgz | tar -xz && \
+    cp cockroach-v23.1.13.linux-amd64/cockroach /usr/local/bin/ && \
+    rm -rf cockroach-v23.1.13.linux-amd64
+
+# Copia solo los archivos necesarios para producción
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./
+COPY --from=builder /app/prisma ./prisma
 
-# Exponer puerto
+# Copia el script de inicialización
+COPY scripts/init-service.sh /usr/local/bin/init-service.sh
+RUN chmod +x /usr/local/bin/init-service.sh
+
 EXPOSE 3001
 
-# Comando de inicio
-CMD ["node", "dist/main"] 
+# Script de inicio que inicializa la BD y luego ejecuta la aplicación
+CMD ["/bin/sh", "-c", "/usr/local/bin/init-service.sh auth-service auth_db && node dist/src/main"] 

@@ -5,18 +5,28 @@
   "scripts": {
     "infra": "docker-compose up -d rabbitmq cockroachdb consul",
     "dev": "./scripts/dev-all.sh",
+    "dev:only": "./scripts/dev-only.sh",
+    "dev:services": "./scripts/dev-services.sh",
     "stop": "./scripts/stop-all.sh",
     "migrate": "./scripts/deploy-migrations.sh",
     "db:init": "./scripts/init-databases.sh",
-    "db:create": "./scripts/create-databases.sh"
+    "db:create": "./scripts/create-databases.sh",
+    "db:init:docker": "./scripts/init-databases-docker.sh",
+    "docker:build": "./scripts/docker-build.sh",
+    "docker:build:all": "./scripts/docker-build.sh all",
+    "docker:up": "docker-compose up -d",
+    "docker:up:init": "./scripts/start-with-init.sh",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:clean": "docker-compose down -v && docker system prune -f"
   },
   "workspaces": [
     "services/*",
     "consul-service"
   ],
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "typescript": "^5.0.0",
+    "@types/node": "^20.3.1",
+    "typescript": "^5.1.3",
     "concurrently": "^8.0.0"
   },
   "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad"
