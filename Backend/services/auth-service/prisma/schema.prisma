@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "cockroachdb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -16,20 +16,20 @@ enum UserRole {
 }
 
 model User {
-  id               String    @id @default(uuid()) @db.Uuid
-  firstName        String    @map("first_name") @db.String(100)
-  lastName         String    @map("last_name") @db.String(100)
-  email            String    @unique @db.String(255)
-  password         String    @map("password") @db.String(255)
+  id               String    @id @default(uuid())
+  firstName        String
+  lastName         String
+  email            String    @unique
+  password         String
   roles            UserRole[]
-  affiliation      String?   @db.String(500)
-  orcid            String?   @db.String(19)
-  biography        String?   @db.String(2000)
-  profileImageUrl  String?   @map("profile_image_url") @db.String(500)
-  isActive         Boolean   @default(true) @map("is_active")
-  lastLoginAt      DateTime? @map("last_login_at") @db.Timestamptz(6)
-  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  affiliation      String?
+  orcid            String?
+  biography        String?
+  profileImageUrl  String?
+  isActive         Boolean   @default(true)
+  lastLoginAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   refreshTokens    RefreshToken[]
 
@@ -38,14 +38,13 @@ model User {
 }
 
 model RefreshToken {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
-  tokenHash String   @unique @map("token_hash") @db.String(255)
-  expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
-  isRevoked Boolean  @default(false) @map("is_revoked")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  id        String   @id @default(uuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  isRevoked Boolean  @default(false)
+  createdAt DateTime @default(now())
 
-  // Relations
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("refresh_tokens")
