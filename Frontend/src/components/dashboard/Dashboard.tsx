@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Link } from 'react-router-dom';
 import { useAppSelector } from '../../store';
 import { selectCurrentUser, selectIsAdmin, selectIsEditor, selectIsAuthor, selectIsReviewer } from '../../store/slices/authSlice';
 
@@ -156,25 +157,33 @@ const Dashboard: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Link to="/publications" className="p-4 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors">
+              <h3 className="font-medium text-slate-900">Mis Publicaciones</h3>
+              <p className="text-sm text-slate-600">Ver y gestionar mis publicaciones</p>
+            </Link>
             {isAuthor && (
-              <button className="p-4 bg-blue-50 hover:bg-blue-100 rounded-lg text-left transition-colors">
+              <Link to="/publications/new" className="p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
                 <h3 className="font-medium text-blue-900">Nueva Publicación</h3>
                 <p className="text-sm text-blue-600">Crear una nueva publicación</p>
-              </button>
+              </Link>
             )}
             {isReviewer && (
-              <button className="p-4 bg-green-50 hover:bg-green-100 rounded-lg text-left transition-colors">
+              <Link to="/reviews" className="p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
                 <h3 className="font-medium text-green-900">Ver Revisiones</h3>
                 <p className="text-sm text-green-600">Revisar publicaciones asignadas</p>
-              </button>
+              </Link>
             )}
             {(isEditor || isAdmin) && (
-              <button className="p-4 bg-purple-50 hover:bg-purple-100 rounded-lg text-left transition-colors">
+              <Link to="/editorial" className="p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors">
                 <h3 className="font-medium text-purple-900">Panel Editorial</h3>
                 <p className="text-sm text-purple-600">Gestionar publicaciones</p>
-              </button>
+              </Link>
             )}
+            <Link to="/catalog" className="p-4 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors">
+              <h3 className="font-medium text-orange-900">Catálogo</h3>
+              <p className="text-sm text-orange-600">Explorar publicaciones publicadas</p>
+            </Link>
           </div>
         </CardContent>
       </Card>

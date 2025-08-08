@@ -25,9 +25,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Check if user has required roles
   if (requiredRoles.length > 0 && user) {
-    const hasRequiredRole = requiredRoles.some(role => 
-      user.roles.includes(role as any)
-    );
+    const hasRequiredRole = requiredRoles.includes(user.role as any);
     
     if (!hasRequiredRole) {
       // Redirect to dashboard or unauthorized page

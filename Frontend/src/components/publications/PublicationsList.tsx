@@ -89,7 +89,7 @@ const PublicationsList: React.FC = () => {
             Manage your research publications
           </CardDescription>
         </div>
-        <Link to="/publications/create">
+        <Link to="/publications/new">
           <Button>New Publication</Button>
         </Link>
       </CardHeader>
@@ -99,7 +99,7 @@ const PublicationsList: React.FC = () => {
             <p className="text-gray-600 mb-4">
               No publications found. Start by creating your first publication.
             </p>
-            <Link to="/publications/create">
+            <Link to="/publications/new">
               <Button>Create Publication</Button>
             </Link>
           </div>

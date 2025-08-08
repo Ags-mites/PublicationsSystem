@@ -92,7 +92,7 @@ const router = createBrowserRouter([
       {
         path: 'reviews',
         element: (
-          <ProtectedRoute requiredRoles={['ROLE_REVIEWER', 'ROLE_EDITOR', 'ROLE_ADMIN']}>
+          <ProtectedRoute requiredRoles={['ROLE_REVISOR', 'ROLE_EDITOR', 'ROLE_ADMIN']}>
             <ReviewsPage />
           </ProtectedRoute>
         ),
@@ -100,7 +100,7 @@ const router = createBrowserRouter([
       {
         path: 'reviews/:id',
         element: (
-          <ProtectedRoute requiredRoles={['ROLE_REVIEWER', 'ROLE_EDITOR', 'ROLE_ADMIN']}>
+          <ProtectedRoute requiredRoles={['ROLE_REVISOR', 'ROLE_EDITOR', 'ROLE_ADMIN']}>
             <ReviewDetailPage />
           </ProtectedRoute>
         ),

@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "mock:start": "node mock-server/server.cjs",
+    "dev:mock": "VITE_USE_MOCK_SERVER=true VITE_API_BASE_URL=http://localhost:3001/api/v1 vite",
+    "dev:mock:all": "concurrently -k -s first -n mock,web \"node mock-server/server.cjs\" \"VITE_USE_MOCK_SERVER=true VITE_API_BASE_URL=http://localhost:3001/api/v1 vite\""
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
@@ -53,6 +56,8 @@
     "tw-animate-css": "^1.3.6",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.35.1",
-    "vite": "^7.0.4"
+    "vite": "^7.0.4",
+    "concurrently": "^8.2.2",
+    "json-server": "0.17.4"
   }
 }

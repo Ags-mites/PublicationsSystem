@@ -1,0 +1,88 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "firstName": "System",
+      "lastName": "Administrator",
+      "email": "admin@test.com",
+      "role": "ROLE_ADMIN",
+      "affiliation": "Universidad de las Fuerzas Armadas ESPE",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  "publications": [
+    {
+      "id": "p-1",
+      "title": "Example Article",
+      "abstract": "An example abstract.",
+      "keywords": [
+        "example",
+        "test"
+      ],
+      "type": "ARTICLE",
+      "status": "DRAFT",
+      "currentVersion": 1,
+      "primaryAuthorId": "1",
+      "coAuthorIds": [],
+      "metadata": {},
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  "reviews": [],
+  "notifications": [
+    {
+      "id": "n-1",
+      "userId": "1",
+      "type": "USER_LOGIN",
+      "title": "Bienvenido",
+      "message": "Has iniciado sesión",
+      "channel": "WEBSOCKET",
+      "status": "READ",
+      "metadata": {},
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "retryCount": 0,
+      "maxRetries": 3
+    }
+  ],
+  "catalogPublications": [
+    {
+      "id": "cp-1",
+      "originalId": "p-1",
+      "title": "Example Article",
+      "abstract": "An example abstract.",
+      "keywords": [
+        "example",
+        "test"
+      ],
+      "type": "ARTICLE",
+      "primaryAuthor": "System Administrator",
+      "coAuthors": [],
+      "category": "General",
+      "publishedAt": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  "catalogAuthors": [
+    {
+      "id": "ca-1",
+      "originalId": "u-1",
+      "fullName": "System Administrator",
+      "affiliation": "Universidad de las Fuerzas Armadas ESPE",
+      "publicationCount": 1
+    }
+  ],
+  "categories": [
+    {
+      "category": "General",
+      "count": 10
+    },
+    {
+      "category": "Science",
+      "count": 5
+    }
+  ],
+  "statusHistory": [],
+  "notificationSubscriptions": [],
+  "notificationPreferences": []
+}

@@ -86,7 +86,7 @@ const Sidebar: React.FC = () => {
             isActive={isActive('/publications/new')}
           />
 
-          {user?.roles.includes('ROLE_REVIEWER') && (
+          {user?.role === 'ROLE_REVISOR' && (
             <SidebarItem
               to="/reviews"
               icon={
@@ -104,7 +104,7 @@ const Sidebar: React.FC = () => {
             />
           )}
 
-          {(user?.roles.includes('ROLE_EDITOR') || user?.roles.includes('ROLE_ADMIN')) && (
+          {(user?.role === 'ROLE_EDITOR' || user?.role === 'ROLE_ADMIN') && (
             <SidebarItem
               to="/editorial"
               icon={

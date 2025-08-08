@@ -21,6 +21,12 @@ export default defineConfig({
   },
   server: {
     port: 5174,
-    host: true
+    host: true,
+    strictPort: true,
+    hmr: {
+      host: 'localhost',
+      port: 5174,
+      protocol: 'ws',
+    },
   },
 })

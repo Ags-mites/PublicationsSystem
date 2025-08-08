@@ -1,0 +1,19 @@
+{
+  "/api/v1/auth/login": "/login",
+  "/api/v1/auth/register": "/register",
+  "/api/v1/auth/profile": "/users/1",
+  "/api/v1/publications": "/publications",
+  "/api/v1/publications/:id": "/publications/:id",
+  "/api/v1/reviews": "/reviews",
+  "/api/v1/reviews/:id/detail": "/reviews/:id",
+  "/api/v1/notifications": "/notifications",
+  "/api/v1/notifications/unread-count": "/notifications",
+  "/api/v1/notifications/:id/mark-read": "/notifications/:id",
+  "/api/v1/notifications/mark-all-read": "/notifications",
+  "/api/v1/catalog/publications": "/catalogPublications",
+  "/api/v1/catalog/publications/:id": "/catalogPublications/:id",
+  "/api/v1/catalog/authors": "/catalogAuthors",
+  "/api/v1/catalog/authors/:id/publications": "/catalogPublications?primaryAuthor=:id",
+  "/api/v1/catalog/categories": "/categories",
+  "/api/v1/catalog/statistics": "/categories"
+}

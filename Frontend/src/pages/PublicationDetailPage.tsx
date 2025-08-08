@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import PublicationDetail from '../components/publications/PublicationDetail';
+import CatalogPublicationDetail from '../components/catalog/CatalogPublicationDetail';
 
 const PublicationDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -20,7 +20,7 @@ const PublicationDetailPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <PublicationDetail publicationId={id} />
+      <CatalogPublicationDetail publicationId={id} />
     </div>
   );
 };
